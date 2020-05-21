@@ -1,0 +1,110 @@
+name: netease_cloud_music
+description: Flutter版网易云音乐
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^0.1.2
+  bot_toast: ^2.4.1
+  dio: ^3.0.9
+  dio_cookie_manager: ^1.0.0
+  provider: ^4.0.5+1
+  shared_preferences: ^0.5.7
+  cached_network_image: ^2.2.0+1
+  flutter_swiper: ^1.1.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - images/logo_circle.png
+    - images/login_qq.png
+    - images/login_wechat.png
+    - images/login_weibo.png
+    - images/login_yi.png
+    - images/splash_bg.png
+    - images/icon_my_local.png
+    - images/icon_my_download.png
+    - images/icon_my_radio.png
+    - images/icon_my_collected.png
+    - images/icon_my_new.png
+    - images/icon_liked.png
+    - images/icon_radio.png
+    - images/icon_daily.png
+    - images/icon_look.png
+    - images/icon_rank.png
+    - images/icon_playlist.png
+    - images/icon_play_songs.png
+    - images/card_bg.png
+    - images/img_000.jpg
+    - images/img_001.jpg
+    - images/icon_liked_full.png
+    - images/icon_mutil.png
+    - images/icon_check.png
+    - images/icon_bill.png
+    - images/icon_shears.png
+    - images/icon_triangle.png
+    - images/music_loading_0.png
+    - images/music_loading_1.png
+    - images/music_loading_2.png
+    - images/music_loading_3.png
+    - images/image_placeholder.png
+    - images/image_error.png
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware.
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages
