@@ -2,7 +2,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:netease_cloud_music/models/profile.dart';
 import 'package:netease_cloud_music/pages/main_page.dart';
-import 'package:netease_cloud_music/provider/profile.dart';
+import 'package:netease_cloud_music/provider/profile_provider.dart';
 import 'package:netease_cloud_music/utils/dio_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';

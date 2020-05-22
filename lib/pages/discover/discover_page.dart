@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:netease_cloud_music/models/song.dart';
 import 'package:netease_cloud_music/pages/main_page.dart';
+import 'package:netease_cloud_music/provider/play_songs_provider.dart';
 import 'package:netease_cloud_music/utils/dio_utils.dart';
 import 'package:netease_cloud_music/utils/number_utils.dart';
 import 'package:netease_cloud_music/widget/cache_network_image.dart';
 import 'package:netease_cloud_music/widget/custom_future_builder.dart';
 import 'package:netease_cloud_music/widget/pagination_grid_view.dart';
 import 'package:netease_cloud_music/widget/tab_view_wrapper.dart';
+import 'package:provider/provider.dart';
 
 class DiscoverPage extends StatefulWidget {
   @override
@@ -409,7 +412,13 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
           builder: (context, index) {
             return InkWell(
               onTap: () {
-                print(recommendList[index]);
+                List<Map> data = (recommendList as List).cast();
+                List<Song> songs = [];
+                data.forEach((e) {
+                  String artists = (e['artists'] as List).map((e) => e['name']).join('、');
+                  songs.add(Song(e['id'], name: e['name'], artists: artists, picUrl: e['album']['picUrl'] + '?param=400y400'));
+                });
+                Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: index);
               },
               child: Row(
                 children: <Widget>[

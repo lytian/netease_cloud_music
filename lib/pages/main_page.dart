@@ -1,8 +1,8 @@
 import 'dart:ui';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:netease_cloud_music/widget/play_bar.dart';
 import 'package:netease_cloud_music/widget/vtab.dart';
 
 import 'discover/discover_page.dart';
@@ -52,26 +52,25 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        fit: StackFit.expand,
+      body: Column(
         children: <Widget>[
-          NotificationListener<MainTabNotification>(
-            onNotification: (notification) {
-              print(notification.direction.toString());
-//              _tabController.offset();
-              return false;
-            },
-            child: TabBarView(
-                controller: _tabController,
-                children: _tabs.map((item) => item.view).toList()
+          Expanded(
+            child: Stack(
+              children: <Widget>[
+                TabBarView(
+                    controller: _tabController,
+                    children: _tabs.map((item) => item.view).toList()
+                ),
+                _buildAppBar(),
+              ],
             ),
           ),
-          _buildAppBar(),
+          PlayBar()
         ],
       )
+
     );
   }
 

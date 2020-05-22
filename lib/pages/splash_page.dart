@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:netease_cloud_music/application.dart';
 import 'package:netease_cloud_music/models/profile.dart';
 import 'package:netease_cloud_music/pages/login_page.dart';
 import 'package:netease_cloud_music/pages/main_page.dart';
-import 'package:netease_cloud_music/provider/profile.dart';
+import 'package:netease_cloud_music/provider/profile_provider.dart';
 import 'package:netease_cloud_music/utils/dio_utils.dart';
 import 'package:provider/provider.dart';
 
@@ -42,10 +43,8 @@ class _SplashPageState extends State<SplashPage> {
         });
         // 设置用户数据
         Provider.of<ProfileProvider>(context, listen: false).setProfile(Profile.fromJson(data['profile']));
-        // 跳转登录
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-          return MainPage();
-        }));
+        // 跳转主页
+        goMain();
       } catch(e) {
         // 跳转登录
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
@@ -53,7 +52,14 @@ class _SplashPageState extends State<SplashPage> {
         }));
       }
     }
-    // 动态获取闪屏广告
+  }
+
+  void goMain() async {
+    await Application.initSp();
+    // TODO 播放默认歌曲
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+      return MainPage();
+    }));
   }
 
   @override
@@ -63,6 +69,12 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    Application.screenWidth = size.width;
+    Application.screenHeight = size.height;
+    Application.statusBarHeight = MediaQuery.of(context).padding.top;
+    Application.bottomBarHeight = MediaQuery.of(context).padding.bottom;
+
     return Material(
       child: Image.asset(
         'images/splash_bg.png',

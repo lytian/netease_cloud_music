@@ -16,6 +16,7 @@ List<Color> bgColors = [
 ];
 int imgCount = 0;
 
+/// CachedNetworkImage 简单封装。顺序的浅背景色、错误图片、圆角图片、圆形图片
 class CustomCacheNetworkImage extends StatelessWidget {
   final String imageUrl;
   final PlaceholderWidgetBuilder placeholder;

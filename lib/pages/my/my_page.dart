@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:netease_cloud_music/models/profile.dart';
-import 'package:netease_cloud_music/provider/profile.dart';
+import 'package:netease_cloud_music/provider/profile_provider.dart';
 import 'package:netease_cloud_music/widget/flexible_detail_bar.dart';
 import 'package:netease_cloud_music/widget/music_list_header.dart';
 import 'package:provider/provider.dart';

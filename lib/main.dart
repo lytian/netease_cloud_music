@@ -4,7 +4,8 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:netease_cloud_music/pages/splash_page.dart';
-import 'package:netease_cloud_music/provider/profile.dart';
+import 'package:netease_cloud_music/provider/play_songs_provider.dart';
+import 'package:netease_cloud_music/provider/profile_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() => runApp(MyApp());
@@ -20,7 +21,8 @@ class MyApp extends StatelessWidget {
 
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => ProfileProvider(),)
+          ChangeNotifierProvider(create: (_) => ProfileProvider(),),
+          ChangeNotifierProvider(create: (_) => PlaySongsProvider()..init(),),
         ],
         child: Consumer<ProfileProvider>(
           builder: (context, profileProvider, _) {
