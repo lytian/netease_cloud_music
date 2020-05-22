@@ -318,13 +318,13 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
   // 构建精选歌单
   Widget _buildRecommendResource() {
     return CustomFutureBuilder(
-      defaultHeight: 160,
+      defaultHeight: 164,
       futureFunc: _getRecommendPlayList,
       loadingWidget: Container(),
       builder: (context, data) {
         var recommendList = data;
         return SizedBox(
-          height: 160,
+          height: 164,
           child: NotificationListener<OverscrollNotification>(
             onNotification: (notification) {
               notification.dispatch(context);
@@ -373,6 +373,9 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                                 ),
                               ],
                             ),
+                            SizedBox(
+                              height: 6,
+                            ),
                             Text(item['name'],
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -416,7 +419,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                 List<Song> songs = [];
                 data.forEach((e) {
                   String artists = (e['artists'] as List).map((e) => e['name']).join('、');
-                  songs.add(Song(e['id'], name: e['name'], artists: artists, picUrl: e['album']['picUrl'] + '?param=400y400'));
+                  songs.add(Song(e['id'], name: e['name'], artists: artists, picUrl: e['album']['picUrl'] + '?param=200y200'));
                 });
                 Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: index);
               },
@@ -480,12 +483,12 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
   // 构建网友精选碟
   Widget _buildTopResource() {
     return CustomFutureBuilder(
-        defaultHeight: 160,
+        defaultHeight: 164,
         futureFunc: _getTopResource,
         builder: (context, data) {
           var topList = data;
           return SizedBox(
-              height: 160,
+              height: 164,
               child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: topList.length > 6 ? 6 : topList.length,
@@ -535,6 +538,9 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                                   ),
                                 ],
                               ),
+                              SizedBox(
+                                height: 6,
+                              ),
                               Text(item['name'],
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
@@ -573,6 +579,14 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                 return InkWell(
                   onTap: () {
                     print(songList[index]);
+
+                    List<Map> data = (songList as List).cast();
+                    List<Song> songs = [];
+                    data.forEach((e) {
+                      String artists = (e['song']['artists'] as List).map((e) => e['name']).join('、');
+                      songs.add(Song(e['id'], name: e['name'], artists: artists, picUrl: e['picUrl'] + '?param=200y200'));
+                    });
+                    Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: index);
                   },
                   child: Row(
                     children: <Widget>[
