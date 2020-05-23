@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marquee/marquee.dart';
 import 'package:netease_cloud_music/application.dart';
 import 'package:netease_cloud_music/models/play_list_detail.dart';
 import 'package:netease_cloud_music/models/song.dart';
@@ -23,7 +24,9 @@ class PlayListPage extends StatefulWidget {
 
 class _PlayListPageState extends State<PlayListPage> {
 
+  String _title = '歌单';
   PlayListDetail _detail;
+  ScrollController _controller;
 
   Future _getPlayListDetail() async {
     var data = await DioUtils.get('/playlist/detail', queryParameters: {
@@ -32,8 +35,30 @@ class _PlayListPageState extends State<PlayListPage> {
     print(widget.id);
     setState(() {
       _detail = PlayListDetail.fromJson(data['playlist']);
+      if (_detail.specialType == 100) {
+        _title = '官方动态歌单';
+      }
     });
     return data['playlist'];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = ScrollController()..addListener(() {
+      if (_detail == null || _detail.specialType == 100) return;
+
+      if (_controller.offset < 45 && _title != '歌单') {
+        setState(() {
+          _title = '歌单';
+        });
+      } else if(_controller.offset >= 60 && _title != _detail.name) {
+        setState(() {
+          _title = _detail.name;
+        });
+      }
+    });
   }
 
   @override
@@ -44,6 +69,7 @@ class _PlayListPageState extends State<PlayListPage> {
         children: <Widget>[
           Expanded(
             child: CustomScrollView(
+              controller: _controller,
               slivers: <Widget>[
                 _buildSliverAppBar(),
                 SliverToBoxAdapter(
@@ -120,7 +146,16 @@ class _PlayListPageState extends State<PlayListPage> {
       expandedHeight: 306,
       pinned: true,
       elevation: 0,
-      title: Text(_detail != null && _detail.specialType == 100 ? '官方动态歌单' : '歌单'),
+      title: _title.length <=12
+        ? Text(_title)
+        : SizedBox(
+          height: 36,
+          child: Marquee(
+            text: _title,
+            startPadding: 16,
+            blankSpace: 120,
+          ),
+        ),
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.search),
@@ -134,7 +169,9 @@ class _PlayListPageState extends State<PlayListPage> {
         )
       ],
       bottom: _detail != null ? MusicListHeader(
-        onTap: () {},
+        onTap: () {
+          _playSongs(0);
+        },
         count: _detail.trackIds.length,
         tail: Container(
           padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
@@ -422,15 +459,11 @@ class _PlayListPageState extends State<PlayListPage> {
 
     return InkWell(
       onTap: () {
-        // 播放音乐
-        List<Song> songs = _detail.tracks.map((e) => Song(
-          e.id,
-          name: e.name,
-          artists: track.ar.map((e) => e['name']).toList().join('/'),
-          picUrl: e.al['picUrl'] + '?param=100y100'
-        )).toList();
-
-        Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: index);
+        if (playing) {
+          // TODO 进入播放页
+          return;
+        }
+        _playSongs(index);
       },
       child: Row(
         children: <Widget>[
@@ -474,20 +507,20 @@ class _PlayListPageState extends State<PlayListPage> {
               ),
             ),
           ),
-//          track.pop >= 100
-//            ? InkWell(
-//              onTap: () {
-//                print('MV');
-//              },
-//              child: Padding(
-//                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 8),
-//                child: Image.asset('images/icon_video.png', height: 20,),
-//              ),
-//            )
-//          : Container(),
+          track.mv != 0
+            ? InkWell(
+              onTap: () {
+                print('MV');
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+                child: Image.asset('images/icon_video.png', height: 20,),
+              ),
+            )
+          : Container(),
           InkWell(
             onTap: () {
-              print('歌曲详情');
+              _showMusicTool();
             },
             child: Padding(
               padding: EdgeInsets.fromLTRB(6, 20, 12, 20),
@@ -538,6 +571,41 @@ class _PlayListPageState extends State<PlayListPage> {
       child:Row(
         children: children,
       )
+    );
+  }
+
+  /// 播放音乐
+  void _playSongs(int index) {
+    if (_detail == null) return;
+
+    // 播放音乐
+    List<Song> songs = _detail.tracks.map((track) => Song(
+        track.id,
+        name: track.name,
+        artists: track.ar.map((e) => e['name']).toList().join('/'),
+        picUrl: track.al['picUrl'] + '?param=100y100'
+    )).toList();
+
+    Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: index);
+  }
+  /// 展示音乐操作栏
+  void _showMusicTool() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        )
+      ),
+      builder: (context) {
+        return Container(
+          height: 800,
+          color: Colors.red,
+        );
+      }
     );
   }
 }
