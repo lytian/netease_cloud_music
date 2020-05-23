@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:netease_cloud_music/application.dart';
-import 'package:netease_cloud_music/models/profile.dart';
+import 'package:netease_cloud_music/models/user.dart';
 import 'package:netease_cloud_music/pages/login_page.dart';
 import 'package:netease_cloud_music/pages/main_page.dart';
 import 'package:netease_cloud_music/provider/profile_provider.dart';
@@ -42,7 +42,8 @@ class _SplashPageState extends State<SplashPage> {
           'uid': userId
         });
         // 设置用户数据
-        Provider.of<ProfileProvider>(context, listen: false).setProfile(Profile.fromJson(data['profile']));
+        Provider.of<ProfileProvider>(context, listen: false).setProfile(User.fromJson(data['profile']));
+        // 设置默认播放音乐
         // 跳转主页
         goMain();
       } catch(e) {

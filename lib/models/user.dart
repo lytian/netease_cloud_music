@@ -1,4 +1,4 @@
-class Profile {
+class User {
 	int vipType;
 	int gender;
 	int accountStatus;
@@ -30,9 +30,9 @@ class Profile {
 	int playlistCount;
 	int playlistBeSubscribedCount;
 
-	Profile({this.vipType, this.gender, this.accountStatus, this.avatarImgId, this.nickname, this.birthday, this.city, this.backgroundImgId, this.userType, this.avatarUrl, this.province, this.defaultAvatar, this.djStatus,  this.authStatus, this.mutual, this.remarkName, this.userId, this.followed, this.backgroundUrl, this.detailDescription, this.description, this.avatarImgIdStr, this.backgroundImgIdStr, this.signature, this.authority, this.followeds, this.follows, this.eventCount, this.playlistCount, this.playlistBeSubscribedCount});
+	User({this.vipType, this.gender, this.accountStatus, this.avatarImgId, this.nickname, this.birthday, this.city, this.backgroundImgId, this.userType, this.avatarUrl, this.province, this.defaultAvatar, this.djStatus,  this.authStatus, this.mutual, this.remarkName, this.userId, this.followed, this.backgroundUrl, this.detailDescription, this.description, this.avatarImgIdStr, this.backgroundImgIdStr, this.signature, this.authority, this.followeds, this.follows, this.eventCount, this.playlistCount, this.playlistBeSubscribedCount});
 
-	Profile.fromJson(Map<String, dynamic> json) {
+	User.fromJson(Map<String, dynamic> json) {
 		vipType = json['vipType'];
 		gender = json['gender'];
 		accountStatus = json['accountStatus'];

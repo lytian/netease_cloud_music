@@ -13,6 +13,9 @@ class FlexibleDetailBar extends StatelessWidget {
   /// 顶部标题的背景
   final Widget titleBackground;
 
+  /// 是否为视差滚动
+  final bool parallax;
+
   ///custom content interaction with t
   ///[t] 0.0 -> Expanded  1.0 -> Collapsed to toolbar
   final Widget Function(BuildContext context, double t) builder;
@@ -26,9 +29,10 @@ class FlexibleDetailBar extends StatelessWidget {
   const FlexibleDetailBar({
     Key key,
     @required this.content,
-    this.builder,
     @required this.background,
-    this.titleBackground
+    this.builder,
+    this.titleBackground,
+    this.parallax = true
   })  : assert(content != null),
         assert(background != null),
         super(key: key);
@@ -46,9 +50,8 @@ class FlexibleDetailBar extends StatelessWidget {
     (1.0 - (settings.currentExtent - settings.minExtent) / deltaExtent)
         .clamp(0.0, 1.0);
 
-    //背景添加视差滚动效果
     children.add(Positioned(
-      top: -Tween<double>(begin: 0.0, end: deltaExtent / 4.0).transform(t),
+      top: parallax ? -Tween<double>(begin: 0.0, end: deltaExtent / 4.0).transform(t) : 0,
       left: 0,
       right: 0,
       height: settings.maxExtent,

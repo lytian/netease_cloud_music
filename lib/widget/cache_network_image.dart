@@ -45,7 +45,11 @@ class CustomCacheNetworkImage extends StatelessWidget {
       imageUrl: imageUrl,
 //      color: bgColors[imgCount % bgColors.length],
       errorWidget: (context, url, error) => Image.asset('images/image_error.png'),
-      placeholder: placeholder ?? (context, url) => Container(color: bgColors[imgCount % bgColors.length]),
+      placeholder: placeholder ?? (context, url) => Container(
+        width: width,
+        height: height,
+        color: bgColors[imgCount % bgColors.length]
+      ),
       width: width,
       height: height,
       fit: fit,

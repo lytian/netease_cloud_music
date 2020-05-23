@@ -17,7 +17,11 @@ class PlaySongsProvider with ChangeNotifier {
   AudioPlayerState _curState;
 
   List<Song> get allSongs => _songs;
-  Song get curSong => _songs[curIndex];
+  Song get curSong {
+    if (_songs.isEmpty) return null;
+
+    return _songs[curIndex];
+  }
   Stream<String> get curPositionStream => _curPositionController.stream;
   AudioPlayerState get curState => _curState;
 
@@ -136,9 +140,9 @@ class PlaySongsProvider with ChangeNotifier {
 
   @override
   void dispose() {
-    super.dispose();
     _curPositionController.close();
     _audioPlayer.dispose();
+    super.dispose();
   }
 
 }

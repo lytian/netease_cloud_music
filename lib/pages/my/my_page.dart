@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:netease_cloud_music/models/profile.dart';
+import 'package:netease_cloud_music/models/user.dart';
 import 'package:netease_cloud_music/provider/profile_provider.dart';
 import 'package:netease_cloud_music/widget/flexible_detail_bar.dart';
 import 'package:netease_cloud_music/widget/music_list_header.dart';
@@ -63,7 +63,7 @@ class _MyPageState extends State<MyPage> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    Profile profile = Provider.of<ProfileProvider>(context).profile;
+    User profile = Provider.of<ProfileProvider>(context).profile;
     return CustomScrollView (
       slivers: <Widget>[
         SliverAppBar(
@@ -86,7 +86,7 @@ class _MyPageState extends State<MyPage> with SingleTickerProviderStateMixin {
           flexibleSpace: FlexibleDetailBar(
             content: _buildProfileInfo(profile),
             titleBackground: Container(
-              color: Colors.black87,
+              color: Color.fromRGBO(0, 0, 0, 0.5),
             ),
             background: Container(
               foregroundDecoration: BoxDecoration(
@@ -138,7 +138,7 @@ class _MyPageState extends State<MyPage> with SingleTickerProviderStateMixin {
     );
   }
   // 构建个人信息
-  Widget _buildProfileInfo(Profile profile) {
+  Widget _buildProfileInfo(User profile) {
     return Container(
       child: Padding(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 48, left: 12, right: 12),

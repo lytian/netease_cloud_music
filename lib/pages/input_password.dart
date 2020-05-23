@@ -1,6 +1,6 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:netease_cloud_music/models/profile.dart';
+import 'package:netease_cloud_music/models/user.dart';
 import 'package:netease_cloud_music/pages/main_page.dart';
 import 'package:netease_cloud_music/provider/profile_provider.dart';
 import 'package:netease_cloud_music/utils/dio_utils.dart';
@@ -105,7 +105,7 @@ class _InputPhonePageState extends State<InputPasswordPage> {
       "password": _inputText
     }).then((data) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      Provider.of<ProfileProvider>(context, listen: false).setProfile(Profile.fromJson(data['profile']));
+      Provider.of<ProfileProvider>(context, listen: false).setProfile(User.fromJson(data['profile']));
       await prefs.setString('userId', data['profile']['userId'].toString());
       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) {
         return MainPage();

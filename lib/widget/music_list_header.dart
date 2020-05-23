@@ -19,14 +19,14 @@ class MusicListHeader extends StatelessWidget implements PreferredSizeWidget {
       children.addAll(<Widget>[
         Icon(
           Icons.play_circle_outline,
-          size: 28,
+          size: 26,
         ),
         SizedBox.fromSize(
-          size: Size.fromWidth(8),
+          size: Size.fromWidth(10),
         ),
         Text(
           "播放全部",
-          style: TextStyle(fontSize: 18, color: Colors.black87),
+          style: TextStyle(fontSize: 17, color: Colors.black87),
         ),
       ]);
 
@@ -37,7 +37,7 @@ class MusicListHeader extends StatelessWidget implements PreferredSizeWidget {
         ));
         children.add(Text(
           "(共$count首)",
-          style: TextStyle(fontSize: 12, color: Colors.grey),
+          style: TextStyle(fontSize: 13, color: Colors.grey),
         ));
       }
     }

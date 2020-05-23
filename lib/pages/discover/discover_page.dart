@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:netease_cloud_music/models/song.dart';
+import 'package:netease_cloud_music/pages/discover/play_list_page.dart';
 import 'package:netease_cloud_music/pages/main_page.dart';
 import 'package:netease_cloud_music/provider/play_songs_provider.dart';
 import 'package:netease_cloud_music/utils/dio_utils.dart';
@@ -110,7 +111,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                 content: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    InkWell(
+                    GestureDetector(
                       onTap: () {
                         setState(() {
                           _newType = 0;
@@ -130,7 +131,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                         color: Colors.grey,
                       ),
                     ),
-                    InkWell(
+                    GestureDetector(
                       onTap: () {
                         setState(() {
                           _newType = 1;
@@ -151,6 +152,13 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
       )
     );
   }
+
+  void goPlayListPage(int id) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return PlayListPage(id);
+    }));
+  }
+
   // 构建通用的标题栏
   Widget _buildTitle(String title, { String moreText = '查看更多', Function onTap, IconData icon, Widget content}) {
     return Container(
@@ -172,7 +180,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                 width: 0.5
               )
             ),
-            child: InkWell(
+            child: GestureDetector(
               onTap: onTap,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -267,7 +275,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: _categoryList.map((e) {
-          return InkWell(
+          return GestureDetector(
             onTap: e['onTap'],
             child: Column(
               children: <Widget>[
@@ -338,9 +346,9 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                   return Container(
                       width: 120,
                       margin: EdgeInsets.only(left: index == 0 ? 16 : 4, right: index == recommendList.length - 1 ? 16 : 4),
-                      child: InkWell(
+                      child: GestureDetector(
                         onTap: () {
-                          print(item);
+                          goPlayListPage(item['id']);
                         },
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -349,7 +357,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                               alignment: Alignment.topRight,
                               children: <Widget>[
                                 CustomCacheNetworkImage(
-                                  imageUrl: item['picUrl'] + '?param=800y800',
+                                  imageUrl: item['picUrl'] + '?param=400y400',
                                   borderRadius: BorderRadius.circular(6),
                                   width: 120,
                                   height: 120,
@@ -404,76 +412,93 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
       loadingWidget: Container(),
       builder: (context, data) {
         var recommendList = data;
-        return PaginationGridView(
-          height: 192,
-          itemCount: recommendList.length > 12 ? 12 : recommendList.length,
-          crossAxisCount: 3,
-          crossAxisSpacing: 6,
-          mainAxisSpacing: 16,
-          childAspectRatio: 1 / 6.1,
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          builder: (context, index) {
-            return InkWell(
-              onTap: () {
-                List<Map> data = (recommendList as List).cast();
-                List<Song> songs = [];
-                data.forEach((e) {
-                  String artists = (e['artists'] as List).map((e) => e['name']).join('、');
-                  songs.add(Song(e['id'], name: e['name'], artists: artists, picUrl: e['album']['picUrl'] + '?param=200y200'));
-                });
-                Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: index);
-              },
-              child: Row(
-                children: <Widget>[
-                  CustomCacheNetworkImage(
-                    imageUrl: recommendList[index]['album']['picUrl'] + '?param=400y400',
-                    width: 56,
-                    height: 56,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 6),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            RichText(
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                text: TextSpan(
-                                    style: TextStyle(fontSize: 15, color: Colors.black87),
-                                    children: [
-                                      TextSpan(text: recommendList[index]['name']),
-                                      TextSpan(text: ' - ' + recommendList[index]['artists'][0]['name'], style: TextStyle(fontSize: 12, color: Colors.grey, ),)
-                                    ]
-                                )
+        return Consumer<PlaySongsProvider>(
+          builder: (context, model, child) {
+            Song curSong = model.curSong;
+            return PaginationGridView(
+              height: 192,
+              itemCount: recommendList.length > 12 ? 12 : recommendList.length,
+              crossAxisCount: 3,
+              crossAxisSpacing: 6,
+              mainAxisSpacing: 16,
+              childAspectRatio: 1 / 6.1,
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              builder: (context, index) {
+                return InkWell(
+                  onTap: () {
+                    if (curSong != null && curSong.id == recommendList[index]['id']) {
+                      // TODO 跳转播放页面
+                      return;
+                    }
+                    List<Map> data = (recommendList as List).cast();
+                    List<Song> songs = [];
+                    data.forEach((e) {
+                      String artists = (e['artists'] as List).map((e) => e['name']).join('、');
+                      songs.add(Song(e['id'], name: e['name'], artists: artists, picUrl: e['album']['picUrl'] + '?param=200y200'));
+                    });
+                    Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: index);
+                  },
+                  child: Row(
+                    children: <Widget>[
+                      CustomCacheNetworkImage(
+                        imageUrl: recommendList[index]['album']['picUrl'] + '?param=200y200',
+                        width: 56,
+                        height: 56,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 6),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                RichText(
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    text: TextSpan(
+                                        style: TextStyle(fontSize: 15, color: Colors.black87),
+                                        children: [
+                                          TextSpan(text: recommendList[index]['name']),
+                                          TextSpan(text: ' - ' + recommendList[index]['artists'][0]['name'], style: TextStyle(fontSize: 12, color: Colors.grey, ),)
+                                        ]
+                                    )
+                                ),
+                                Text(recommendList[index]['reason'],
+                                  style: TextStyle(fontSize: 12, color: Colors.grey, ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
                             ),
-                            Text(recommendList[index]['reason'],
-                              style: TextStyle(fontSize: 12, color: Colors.grey, ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                          )
+                      ),
+                      curSong != null && curSong.id == recommendList[index]['id']
+                      ? Container(
+                        width: 26,
+                        height: 26,
+                        child: Center(
+                          child: Icon(Icons.volume_up, color: Colors.red, size: 21,),
                         ),
                       )
+                      : Container(
+                        width: 26,
+                        height: 26,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(
+                                color: Color(0xffd0d0d0),
+                                width: 0.5
+                            )
+                        ),
+                        child: Center(
+                          child: Icon(Icons.play_arrow, color: Colors.red, size: 16,),
+                        ),
+                      )
+                    ],
                   ),
-                  Container(
-                    width: 26,
-                    height: 26,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(32),
-                        border: Border.all(
-                            color: Color(0xffd0d0d0),
-                            width: 0.5
-                        )
-                    ),
-                    child: Center(
-                      child: Icon(Icons.play_arrow, color: Colors.red, size: 16,),
-                    ),
-                  )
-                ],
-              ),
+                );
+              },
             );
           },
         );
@@ -497,9 +522,9 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                     return Container(
                         width: 120,
                         margin: EdgeInsets.only(left: index == 0 ? 16 : 4, right: index == topList.length - 1 ? 16 : 4),
-                        child: InkWell(
+                        child: GestureDetector(
                           onTap: () {
-                            print(item);
+                            goPlayListPage(item['id']);
                           },
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -514,7 +539,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(8),
                                         image: DecorationImage(
-                                            image: NetworkImage(item['coverImgUrl'] + '?param=800y800'),
+                                            image: NetworkImage(item['coverImgUrl'] + '?param=400y400'),
                                             fit: BoxFit.cover
                                         )
                                     ),
@@ -591,7 +616,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                   child: Row(
                     children: <Widget>[
                       CustomCacheNetworkImage(
-                        imageUrl: songList[index]['picUrl'] + '?param=400y400',
+                        imageUrl: songList[index]['picUrl'] + '?param=200y200',
                         width: 56,
                         height: 56,
                         borderRadius: BorderRadius.circular(6),
@@ -668,7 +693,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                 child: Row(
                   children: <Widget>[
                     CustomCacheNetworkImage(
-                      imageUrl: albumList[index]['picUrl'] + '?param=400y400',
+                      imageUrl: albumList[index]['picUrl'] + '?param=200y200',
                       width: 56,
                       height: 56,
                       borderRadius: BorderRadius.circular(6),

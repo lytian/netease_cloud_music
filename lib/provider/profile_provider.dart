@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:netease_cloud_music/models/profile.dart';
+import 'package:netease_cloud_music/models/user.dart';
 
 class ProfileProvider with ChangeNotifier {
   String _token;
   int _loginType = 0;
-  Profile _profile;
+  User _profile;
 
   String get token => _token;
   int get loginType => _loginType;
-  Profile get profile => _profile;
+  User get profile => _profile;
 
 
   void setLoginType(int type) {
@@ -19,7 +19,7 @@ class ProfileProvider with ChangeNotifier {
     _token = token;
     notifyListeners();
   }
-  void setProfile(Profile profile) {
+  void setProfile(User profile) {
     _profile = profile;
     notifyListeners();
   }

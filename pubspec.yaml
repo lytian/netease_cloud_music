@@ -86,6 +86,15 @@ flutter:
     - images/list.png
     - images/play.png
     - images/pause.png
+    - images/icon_comment.png
+    - images/icon_share.png
+    - images/icon_download.png
+    - images/icon_mutil_select.png
+    - images/icon_more_vert.png
+    - images/icon_video.png
+    - images/text_dujia.png
+#    - images/text_hq.png
+#    - images/text_sq.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
