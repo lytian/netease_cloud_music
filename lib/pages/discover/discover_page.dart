@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:netease_cloud_music/models/song.dart';
 import 'package:netease_cloud_music/pages/discover/play_list_page.dart';
+import 'package:netease_cloud_music/pages/discover/play_song_page.dart';
 import 'package:netease_cloud_music/pages/main_page.dart';
 import 'package:netease_cloud_music/provider/play_songs_provider.dart';
 import 'package:netease_cloud_music/utils/dio_utils.dart';
@@ -427,14 +428,16 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                 return InkWell(
                   onTap: () {
                     if (curSong != null && curSong.id == recommendList[index]['id']) {
-                      // TODO 跳转播放页面
+                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        return PlaySongPage();
+                      }));
                       return;
                     }
                     List<Map> data = (recommendList as List).cast();
                     List<Song> songs = [];
                     data.forEach((e) {
                       String artists = (e['artists'] as List).map((e) => e['name']).join('、');
-                      songs.add(Song(e['id'], name: e['name'], artists: artists, picUrl: e['album']['picUrl'] + '?param=200y200'));
+                      songs.add(Song(e['id'], name: e['name'], artists: artists, picUrl: e['album']['picUrl']));
                     });
                     Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: index);
                   },
@@ -592,80 +595,98 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
         futureFunc: _getNewSongs,
         builder: (context, data) {
           var songList = data;
-          return PaginationGridView(
-              height: 192,
-              itemCount: songList.length > 6 ? 6 : songList.length,
-              crossAxisCount: 3,
-              crossAxisSpacing: 6,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1 / 6.1,
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              builder: (context, index) {
-                return InkWell(
-                  onTap: () {
-                    print(songList[index]);
+          return Consumer<PlaySongsProvider>(
+            builder: (context, model, child) {
+              Song curSong = model.curSong;
+              return PaginationGridView(
+                  height: 192,
+                  itemCount: songList.length > 6 ? 6 : songList.length,
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 6,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 1 / 6.1,
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  builder: (context, index) {
+                    return InkWell(
+                      onTap: () {
+                        if (curSong != null && curSong.id == songList[index]['id']) {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) {
+                            return PlaySongPage();
+                          }));
+                          return;
+                        }
 
-                    List<Map> data = (songList as List).cast();
-                    List<Song> songs = [];
-                    data.forEach((e) {
-                      String artists = (e['song']['artists'] as List).map((e) => e['name']).join('、');
-                      songs.add(Song(e['id'], name: e['name'], artists: artists, picUrl: e['picUrl'] + '?param=200y200'));
-                    });
-                    Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: index);
-                  },
-                  child: Row(
-                    children: <Widget>[
-                      CustomCacheNetworkImage(
-                        imageUrl: songList[index]['picUrl'] + '?param=200y200',
-                        width: 56,
-                        height: 56,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 6),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                RichText(
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    text: TextSpan(
-                                        style: TextStyle(fontSize: 15, color: Colors.black87),
-                                        children: [
-                                          TextSpan(text: songList[index]['name']),
-                                          TextSpan(text: ' - ' + songList[index]['song']['artists'][0]['name'], style: TextStyle(fontSize: 12, color: Colors.grey, ),)
-                                        ]
-                                    )
-                                ),
+                        List<Map> data = (songList as List).cast();
+                        List<Song> songs = [];
+                        data.forEach((e) {
+                          String artists = (e['song']['artists'] as List).map((e) => e['name']).join('、');
+                          songs.add(Song(e['id'], name: e['name'], artists: artists, picUrl: e['picUrl']));
+                        });
+                        Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: index);
+                      },
+                      child: Row(
+                        children: <Widget>[
+                          CustomCacheNetworkImage(
+                            imageUrl: songList[index]['picUrl'] + '?param=200y200',
+                            width: 56,
+                            height: 56,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 6),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    RichText(
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        text: TextSpan(
+                                            style: TextStyle(fontSize: 15, color: Colors.black87),
+                                            children: [
+                                              TextSpan(text: songList[index]['name']),
+                                              TextSpan(text: ' - ' + songList[index]['song']['artists'][0]['name'], style: TextStyle(fontSize: 12, color: Colors.grey, ),)
+                                            ]
+                                        )
+                                    ),
 //                                      Text(songList[index]['reason'],
 //                                        style: TextStyle(fontSize: 12, color: Colors.grey, ),
 //                                        maxLines: 1,
 //                                        overflow: TextOverflow.ellipsis,
 //                                      ),
-                              ],
+                                  ],
+                                ),
+                              )
+                          ),
+                          curSong != null && curSong.id == songList[index]['id']
+                              ? Container(
+                            width: 26,
+                            height: 26,
+                            child: Center(
+                              child: Icon(Icons.volume_up, color: Colors.red, size: 21,),
                             ),
                           )
+                              : Container(
+                            width: 26,
+                            height: 26,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(32),
+                                border: Border.all(
+                                    color: Color(0xffd0d0d0),
+                                    width: 0.5
+                                )
+                            ),
+                            child: Center(
+                              child: Icon(Icons.play_arrow, color: Colors.red, size: 16,),
+                            ),
+                          )
+                        ],
                       ),
-                      Container(
-                        width: 26,
-                        height: 26,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(32),
-                            border: Border.all(
-                                color: Color(0xffd0d0d0),
-                                width: 0.5
-                            )
-                        ),
-                        child: Center(
-                          child: Icon(Icons.play_arrow, color: Colors.red, size: 16,),
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              }
+                    );
+                  }
+              );
+            }
           );
         }
     );

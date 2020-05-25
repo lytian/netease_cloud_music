@@ -1,8 +1,12 @@
+import 'dart:ui';
+
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
 import 'package:netease_cloud_music/application.dart';
 import 'package:netease_cloud_music/models/play_list_detail.dart';
 import 'package:netease_cloud_music/models/song.dart';
+import 'package:netease_cloud_music/pages/discover/play_song_page.dart';
 import 'package:netease_cloud_music/provider/play_songs_provider.dart';
 import 'package:netease_cloud_music/utils/dio_utils.dart';
 import 'package:netease_cloud_music/utils/number_utils.dart';
@@ -12,6 +16,7 @@ import 'package:netease_cloud_music/widget/music_list_header.dart';
 import 'package:netease_cloud_music/widget/play_bar.dart';
 import 'package:provider/provider.dart';
 
+/// 歌单列表页面
 class PlayListPage extends StatefulWidget {
   // 歌单ID
   final int id;
@@ -117,6 +122,28 @@ class _PlayListPageState extends State<PlayListPage> {
         color: Colors.white,
       );
     } else if (_detail.backgroundCoverUrl == null) {
+//      backgroundWidget = Stack(
+//        children: <Widget>[
+//          Image.network(
+//            _detail.coverImgUrl,
+//            width: double.infinity,
+//            height: double.infinity,
+//            fit: BoxFit.cover,
+//            alignment: Alignment.bottomCenter,
+//          ),
+//          BackdropFilter(
+//            filter: ImageFilter.blur(
+//              sigmaY: 100,
+//              sigmaX: 100,
+//            ),
+//            child: Container(
+//              color: Colors.black38,
+//              width: double.infinity,
+//              height: double.infinity,
+//            ),
+//          )
+//        ]
+//      );
       backgroundWidget = Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -143,7 +170,7 @@ class _PlayListPageState extends State<PlayListPage> {
     }
 
     return SliverAppBar(
-      expandedHeight: 306,
+      expandedHeight: 320,
       pinned: true,
       elevation: 0,
       title: _title.length <=12
@@ -173,24 +200,42 @@ class _PlayListPageState extends State<PlayListPage> {
           _playSongs(0);
         },
         count: _detail.trackIds.length,
-        tail: Container(
-          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-          decoration: BoxDecoration(
-            color: Colors.redAccent,
-            borderRadius: BorderRadius.circular(48)
+        tail: _detail.subscribed
+          ? InkWell(
+            onTap: () {
+              _toggleSubscribe();
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+              decoration: BoxDecoration(
+                  color: Colors.redAccent,
+                  borderRadius: BorderRadius.circular(48)
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Icon(Icons.add, size: 16, color: Colors.white,),
+                  Text(' 收藏(${NumberUtils.amountConversion(_detail.subscribedCount)})',style: TextStyle(color: Colors.white, fontSize: 12),)
+                ],
+              ),
+            )
+          )
+          : InkWell(
+            onTap: () {
+              _toggleSubscribe();
+            },
+            child: Row(
+              children: <Widget>[
+                Image.asset('images/icon_collected.png', height: 18,),
+                Text(' ${NumberUtils.amountConversion(_detail.subscribedCount)}', style: TextStyle(color: Colors.grey, fontSize: 12),)
+              ],
+            ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(Icons.add, size: 16, color: Colors.white,),
-              Text(' 收藏(${NumberUtils.amountConversion(_detail.subscribedCount)})',style: TextStyle(color: Colors.white, fontSize: 12),)
-            ],
-          ),
-        ),
       ) : null,
       flexibleSpace: FlexibleDetailBar(
         titleBackground: backgroundWidget,
         background: backgroundWidget,
+        collapseMode: CollapseMode.pin,
         content: Column(
           children: <Widget>[
             _detail != null && _detail.specialType == 100 ? _buildOfficialPlayList() : _buildCreatorPlayList(),
@@ -203,7 +248,7 @@ class _PlayListPageState extends State<PlayListPage> {
   /// 构建创建者歌单
   Widget _buildCreatorPlayList() {
     return Padding(
-      padding: EdgeInsets.only(left: 16, top: 64 + Application.statusBarHeight, right: 16, bottom: 20),
+      padding: EdgeInsets.only(left: 16, top: 72 + Application.statusBarHeight, right: 16, bottom: 28),
       child: Row(
         children: <Widget>[
           Container(
@@ -311,7 +356,7 @@ class _PlayListPageState extends State<PlayListPage> {
   /// 构建官方歌单
   Widget _buildOfficialPlayList() {
     return Padding(
-      padding: EdgeInsets.only(left: 16, top: 64 + Application.statusBarHeight, right: 16, bottom: 20),
+      padding: EdgeInsets.only(left: 16, top: 72 + Application.statusBarHeight, right: 16, bottom: 24),
       child: SizedBox(
         height: 120,
         width: double.infinity,
@@ -324,7 +369,7 @@ class _PlayListPageState extends State<PlayListPage> {
                   color: Colors.white,
                   height: 1.4
               ),
-              maxLines: 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             SizedBox(
@@ -346,7 +391,7 @@ class _PlayListPageState extends State<PlayListPage> {
                 child: Text(_detail.updateFrequency, style: TextStyle(color: Colors.white70, fontSize: 10),),
               ),
             SizedBox(
-              height: 16,
+              height: 24,
             ),
             Expanded(
               flex: 1,
@@ -460,7 +505,9 @@ class _PlayListPageState extends State<PlayListPage> {
     return InkWell(
       onTap: () {
         if (playing) {
-          // TODO 进入播放页
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return PlaySongPage();
+          }));
           return;
         }
         _playSongs(index);
@@ -583,17 +630,29 @@ class _PlayListPageState extends State<PlayListPage> {
         track.id,
         name: track.name,
         artists: track.ar.map((e) => e['name']).toList().join('/'),
-        picUrl: track.al['picUrl'] + '?param=100y100'
+        picUrl: track.al['picUrl']
     )).toList();
 
     Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: index);
+  }
+  /// 切换收藏歌单
+  void _toggleSubscribe() {
+    if (_detail == null) return;
+    BotToast.showLoading();
+    DioUtils.get('/playlist/subscribe', queryParameters: {
+      'id': _detail.id,
+      't': _detail.subscribed ? 2 : 1
+    }).then((v) {
+      setState(() {
+        _detail.subscribed = !_detail.subscribed;
+      });
+    }).whenComplete(() => BotToast.closeAllLoading());
   }
   /// 展示音乐操作栏
   void _showMusicTool() {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
-      isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),

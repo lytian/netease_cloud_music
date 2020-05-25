@@ -14,7 +14,7 @@ class FlexibleDetailBar extends StatelessWidget {
   final Widget titleBackground;
 
   /// 是否为视差滚动
-  final bool parallax;
+  final CollapseMode collapseMode;
 
   ///custom content interaction with t
   ///[t] 0.0 -> Expanded  1.0 -> Collapsed to toolbar
@@ -32,7 +32,7 @@ class FlexibleDetailBar extends StatelessWidget {
     @required this.background,
     this.builder,
     this.titleBackground,
-    this.parallax = true
+    this.collapseMode  = CollapseMode.parallax
   })  : assert(content != null),
         assert(background != null),
         super(key: key);
@@ -51,7 +51,7 @@ class FlexibleDetailBar extends StatelessWidget {
         .clamp(0.0, 1.0);
 
     children.add(Positioned(
-      top: parallax ? -Tween<double>(begin: 0.0, end: deltaExtent / 4.0).transform(t) : 0,
+      top: _getCollapsePadding(t, settings),
       left: 0,
       right: 0,
       height: settings.maxExtent,
@@ -109,6 +109,19 @@ class FlexibleDetailBar extends StatelessWidget {
             child: DefaultTextStyle(
                 style: Theme.of(context).primaryTextTheme.body1,
                 child: Stack(children: children, fit: StackFit.expand))));
+  }
+
+  double _getCollapsePadding(double t, FlexibleSpaceBarSettings settings) {
+    switch (collapseMode) {
+      case CollapseMode.pin:
+        return -(settings.maxExtent - settings.currentExtent);
+      case CollapseMode.none:
+        return 0.0;
+      case CollapseMode.parallax:
+        final double deltaExtent = settings.maxExtent - settings.minExtent;
+        return -Tween<double>(begin: 0.0, end: deltaExtent / 4.0).transform(t);
+    }
+    return null;
   }
 }
 

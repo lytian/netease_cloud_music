@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:netease_cloud_music/application.dart';
 import 'package:netease_cloud_music/models/song.dart';
+import 'package:netease_cloud_music/pages/discover/play_song_page.dart';
 import 'package:netease_cloud_music/provider/play_songs_provider.dart';
 import 'package:netease_cloud_music/widget/cache_network_image.dart';
 import 'package:provider/provider.dart';
@@ -18,21 +19,25 @@ class PlayBar extends StatelessWidget {
         Song curSong = model.curSong;
         return Container(
           height: 50 + Application.bottomBarHeight,
-          padding: EdgeInsets.only(left: 12, right: 6),
+          padding: EdgeInsets.only(left: 12),
           decoration: BoxDecoration(
               border: Border(top: BorderSide(color: Colors.grey[200], width: 0.5)),
               color: Colors.white
           ),
           alignment: Alignment.topCenter,
           child: GestureDetector(
-//            behavior: HitTestBehavior.,
-            onTap: () {},
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return PlaySongPage();
+              }));
+            },
             child: SizedBox(
               height: 50,
               child: Row(
                 children: <Widget>[
                   CustomCacheNetworkImage(
-                    imageUrl: curSong.picUrl + '?param=200y200',
+                    imageUrl: curSong.picUrl + '?param=100y100',
                     isCircle: true,
                     width: 36,
                     height: 36,
@@ -63,7 +68,8 @@ class PlayBar extends StatelessWidget {
                     },
                   ),
                   _PlayButton(
-                      assetPath: 'images/list.png'
+                    assetPath: 'images/list.png',
+                    onTap: () {},
                   ),
                 ],
               ),
@@ -92,13 +98,9 @@ class _PlayButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(40.0)
-      ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(40.0),
         child: Padding(
-          padding: EdgeInsets.all(6),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           child: Image.asset(assetPath, width: width, height: width,),
         ),
         onTap: onTap,

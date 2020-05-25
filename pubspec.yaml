@@ -32,6 +32,7 @@ dependencies:
   flutter_swiper: ^1.1.6
   audioplayers: ^0.15.1
   marquee: ^1.3.1
+  date_format: ^1.0.8
 
 dev_dependencies:
   flutter_test:
@@ -96,6 +97,25 @@ flutter:
     - images/text_dujia.png
 #    - images/text_hq.png
 #    - images/text_sq.png
+    - images/icon_collected.png
+    - images/icon_play_comment.png
+    - images/icon_play_comment.png
+    - images/icon_play_download.png
+    - images/icon_play_heartbeat.png
+    - images/icon_play_like.png
+    - images/icon_play_list.png
+    - images/icon_play_loop.png
+    - images/icon_play_more.png
+    - images/icon_play_prev.png
+    - images/icon_play_next.png
+    - images/icon_play_order.png
+    - images/icon_play_pause.png
+    - images/icon_play_play.png
+    - images/icon_play_random.png
+    - images/icon_play_ring.png
+    - images/icon_play_single.png
+    - images/bet.png
+    - images/bgm.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
