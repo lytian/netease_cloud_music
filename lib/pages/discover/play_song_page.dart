@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
 import 'package:netease_cloud_music/application.dart';
 import 'package:netease_cloud_music/models/song.dart';
+import 'package:netease_cloud_music/pages/discover/lyric_page.dart';
 import 'package:netease_cloud_music/provider/play_songs_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:date_format/date_format.dart';
@@ -88,11 +89,20 @@ class _PlaySongPageState extends State<PlaySongPage> with TickerProviderStateMix
                     Expanded(
                       child: GestureDetector(
                         behavior: HitTestBehavior.translucent,
-                        onTap: () {},
+                        onTap: () {
+                          setState(() {
+                            if(musicIndex == 0){
+                              musicIndex = 1;
+                            }else{
+                              musicIndex = 0;
+                            }
+                          });
+                        },
                         child: IndexedStack(
                           index: musicIndex,
                           children: <Widget>[
                             _buildMusicBox(curSong),
+                            LyricPage(provider),
                           ],
                         ),
                       ),
@@ -132,9 +142,10 @@ class _PlaySongPageState extends State<PlaySongPage> with TickerProviderStateMix
               blankSpace: 120,
             ),
           ),
-          Text(song.artists + ' >', style: TextStyle(
-              color: Colors.white60,
-              fontSize: 12
+          Text(song.artists + '  >', style: TextStyle(
+            color: Colors.white60,
+            fontSize: 12,
+            fontWeight: FontWeight.normal
           ),)
         ],
       ),
@@ -244,7 +255,7 @@ class _PlaySongPageState extends State<PlaySongPage> with TickerProviderStateMix
           if (snapshot.hasData) {
             totalTimeStr = snapshot.data.substring(snapshot.data.indexOf('-') + 1);
             curTime = double.parse(snapshot.data.substring(0, snapshot.data.indexOf('-')));
-            curTimeStr = formatDate(DateTime.fromMillisecondsSinceEpoch(curTime.toInt()), [mm, ':', 'ss']);
+            curTimeStr = formatDate(DateTime.fromMillisecondsSinceEpoch(curTime.toInt()), [nn, ':', ss]);
           }
           return Container(
             height: 20,
@@ -282,7 +293,7 @@ class _PlaySongPageState extends State<PlaySongPage> with TickerProviderStateMix
                   ),
                 ),
                 Text(
-                  formatDate(DateTime.fromMillisecondsSinceEpoch(int.parse(totalTimeStr)), [mm, ':', 'ss']),
+                  formatDate(DateTime.fromMillisecondsSinceEpoch(int.parse(totalTimeStr)), [nn, ':', 'ss']),
                   style: TextStyle(fontSize: 10, color: Colors.white38),
                 ),
               ],

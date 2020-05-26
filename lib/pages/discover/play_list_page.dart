@@ -518,14 +518,13 @@ class _PlayListPageState extends State<PlayListPage> {
             width: 30,
             height: 30,
             margin: EdgeInsets.symmetric(horizontal: 10),
-            child: Center(
-              child: playing
-                ? Icon(Icons.volume_up, color: Colors.red, size: 20,)
-                : Text((index + 1).toString(), style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16
-                ),),
-            ),
+            alignment: Alignment.center,
+            child: playing
+              ? Icon(Icons.volume_up, color: Colors.red, size: 20,)
+              : Text((index + 1).toString(), style: TextStyle(
+                color: Colors.grey,
+                fontSize: 16
+              ),),
           ),
           Expanded(
             child: Container(

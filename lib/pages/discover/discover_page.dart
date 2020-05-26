@@ -480,9 +480,8 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                       ? Container(
                         width: 26,
                         height: 26,
-                        child: Center(
-                          child: Icon(Icons.volume_up, color: Colors.red, size: 21,),
-                        ),
+                        alignment: Alignment.center,
+                        child: Icon(Icons.volume_up, color: Colors.red, size: 21,),
                       )
                       : Container(
                         width: 26,
@@ -494,9 +493,8 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                                 width: 0.5
                             )
                         ),
-                        child: Center(
-                          child: Icon(Icons.play_arrow, color: Colors.red, size: 16,),
-                        ),
+                        alignment: Alignment.center,
+                        child: Icon(Icons.play_arrow, color: Colors.red, size: 16,),
                       )
                     ],
                   ),
@@ -663,9 +661,8 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                               ? Container(
                             width: 26,
                             height: 26,
-                            child: Center(
-                              child: Icon(Icons.volume_up, color: Colors.red, size: 21,),
-                            ),
+                            alignment: Alignment.center,
+                            child: Icon(Icons.volume_up, color: Colors.red, size: 21,),
                           )
                               : Container(
                             width: 26,
@@ -677,9 +674,8 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                                     width: 0.5
                                 )
                             ),
-                            child: Center(
-                              child: Icon(Icons.play_arrow, color: Colors.red, size: 16,),
-                            ),
+                            alignment: Alignment.center,
+                            child: Icon(Icons.play_arrow, color: Colors.red, size: 16,),
                           )
                         ],
                       ),
