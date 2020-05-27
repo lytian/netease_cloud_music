@@ -1,18 +1,21 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:netease_cloud_music/models/lyric.dart';
 import 'package:netease_cloud_music/provider/play_songs_provider.dart';
 import 'package:netease_cloud_music/utils/dio_utils.dart';
 import 'package:netease_cloud_music/utils/utils.dart';
 import 'package:netease_cloud_music/widget/lyric_widget.dart';
+import 'package:volume/volume.dart';
 
 typedef SeekCallback = Function(int milliseconds);
 
 class LyricPage extends StatefulWidget {
-  PlaySongsProvider provider;
+  final PlaySongsProvider provider;
+  final Function onTap; // 点击空白区域的回调事件
 
-  LyricPage(this.provider);
+  LyricPage(this.provider, { this.onTap });
 
   @override
   _LyricPageState createState() => _LyricPageState();
@@ -26,14 +29,17 @@ class _LyricPageState extends State<LyricPage> with TickerProviderStateMixin {
   LyricWidget _lyricWidget;
   AnimationController _lyricOffsetYController;
 
-//  Timer dragEndTimer; // 拖动结束任务
-//  Function dragEndFunc;
+  Timer _dragEndTimer; // 拖动结束任务
+
+  double curVol = 0;
+  double maxVol = 10;
 
   @override
   void initState() {
     super.initState();
     songId = widget.provider.curSong.id;
     _getLyricData();
+    _getMediaVolume();
   }
 
   @override
@@ -57,6 +63,7 @@ class _LyricPageState extends State<LyricPage> with TickerProviderStateMixin {
   @override
   void dispose() {
     _lyricOffsetYController?.dispose();
+    _dragEndTimer?.cancel();
     super.dispose();
   }
 
@@ -74,76 +81,35 @@ class _LyricPageState extends State<LyricPage> with TickerProviderStateMixin {
   /// 获取画板高度
   void _getContainerHeight() {
     _paintHeight = _key.currentContext.size.height;
-    print(_paintHeight);
+  }
+
+  /// 获取媒体音量属性
+  void _getMediaVolume() async {
+    await Volume.controlVolume(AudioManager.STREAM_MUSIC);
+    int cur = await Volume.getVol;
+    int max = await Volume.getMaxVol;
+    print('cur: $cur, max: $max');
+    setState(() {
+      this.curVol = cur.toDouble();
+      this.maxVol = max.toDouble();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      key: _key,
-      height: double.infinity,
-      child: _lyrics == null
-        ? Center(
-          child: Text(
-            '歌词加载中...',
-            style: TextStyle(fontSize: 16, color: Colors.white),
-          ),
-        )
-        : GestureDetector(
-          behavior: HitTestBehavior.deferToChild,
-          onTapDown: (e) {
-            // 拖动状态下，点击中间的横条
-            if (_lyricWidget.isDragging &&
-                e.localPosition.dy >= (_paintHeight / 2 - 20) &&
-                e.localPosition.dy <= (_paintHeight / 2 + 20)) {
-              widget.provider.seekPlay(_lyricWidget.dragLineTime);
-              setState(() {
-                _lyricWidget.isDragging = false;
-              });
-            }
-          },
-          onVerticalDragStart: (e) {
-            if (!_lyricWidget.isDragging) {
-              setState(() {
-                _lyricWidget.isDragging = true;
-              });
-            }
-          },
-          onVerticalDragUpdate: (e) {
-//            print(e);
-            _lyricWidget.offsetY += e.delta.dy;
-          },
-          onVerticalDragEnd: (e) {
-            if (_lyricWidget.isDragging) {
-              changeLineAnim(_lyricWidget.dragLine, isDrag: true);
-            }
-          },
-          child: StreamBuilder<String>(
-            stream: widget.provider.curPositionStream,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                var curTime = double.parse(snapshot.data.substring(0, snapshot.data.indexOf('-')));
-                // 当前哪一行歌词
-                int curLine  = Utils.findLyricIndex(curTime, _lyrics);
-                if (!_lyricWidget.isDragging) {
-                  changeLineAnim(curLine);
-                }
-                _lyricWidget.curLine = curLine;
-                return CustomPaint(
-                  size: Size.fromHeight(_paintHeight),
-                  painter: _lyricWidget
-                );
-              }
-              return Container();
-            }
-          )
-        )
+    return Column(
+      children: <Widget>[
+        _buildVolumeBar(),
+        _buildLyricWidget(),
+        _buildToolBar(),
+      ],
     );
+
   }
 
   /// 开始下一行动画
-  void changeLineAnim(int curLine, { bool isDrag = false }) {
-    if (_lyricWidget.curLine == curLine) return;
+  void changeLineAnim(int curLine, { bool isDrag = false, bool ignoreCur = true }) {
+    if (ignoreCur && !isDrag && _lyricWidget.curLine == curLine) return;
 
     // 未完成的情况下直接 stop 当前动画，做下一次的动画
     if (_lyricOffsetYController != null) {
@@ -173,5 +139,141 @@ class _LyricPageState extends State<LyricPage> with TickerProviderStateMixin {
     });
     // 启动动画
     _lyricOffsetYController.forward();
+  }
+
+  /// 构建音量控制器
+  Widget _buildVolumeBar() {
+    return Container(
+      height: 20,
+      margin: EdgeInsets.only(left: 16, bottom: 8),
+      child: Row(
+        children: <Widget>[
+          Icon(Icons.volume_up, size: 18, color: Colors.grey,),
+          Expanded(
+            child: SliderTheme(
+              data: SliderThemeData(
+                trackHeight: 1.5,
+                activeTrackColor: Colors.white70,
+                inactiveTrackColor: Colors.white24,
+                thumbColor: Colors.white,
+                thumbShape: RoundSliderThumbShape(
+                  enabledThumbRadius: 3,
+                ),
+              ),
+              child: Slider(
+                value: curVol,
+                onChanged: (data) async {
+                  await Volume.setVol(data.round(), showVolumeUI: ShowVolumeUI.HIDE);
+                  setState(() {
+                    curVol = data;
+                  });
+                },
+                min: 0,
+                max: maxVol,
+              ),
+            ),
+          )
+        ]
+      )
+    );
+  }
+
+  /// 构建歌词
+  Widget _buildLyricWidget() {
+    return Expanded(
+      child: Container(
+        key: _key,
+        margin: EdgeInsets.only(bottom: 12),
+        child: _lyrics == null
+            ? Center(
+          child: Text(
+            '歌词加载中...',
+            style: TextStyle(fontSize: 16, color: Colors.white),
+          ),
+        )
+            : GestureDetector(
+            onTapDown: (e) {
+              if (_lyricWidget.isDragging &&
+                  e.localPosition.dy >= (_paintHeight / 2 - 20) &&
+                  e.localPosition.dy <= (_paintHeight / 2 + 20)) {
+                // 拖动状态下，点击中间的横条
+                widget.provider.seekPlay(_lyricWidget.dragLineTime);
+                setState(() {
+                  _lyricWidget.isDragging = false;
+                });
+              } else {
+                widget.onTap();
+              }
+            },
+            onVerticalDragStart: (e) {
+              if (!_lyricWidget.isDragging) {
+                setState(() {
+                  _lyricWidget.isDragging = true;
+                });
+              }
+            },
+            onVerticalDragUpdate: (e) {
+              _lyricWidget.offsetY += e.delta.dy;
+            },
+            onVerticalDragEnd: (e) {
+              if (_lyricWidget.isDragging) {
+                changeLineAnim(_lyricWidget.dragLine, isDrag: true);
+              }
+              if (_dragEndTimer != null) {
+                _dragEndTimer.cancel();
+                _dragEndTimer = null;
+              }
+              _dragEndTimer = Timer(Duration(seconds: 5), () {
+                if (_lyricWidget.isDragging) {
+                  // 5S过后还原状态
+                  changeLineAnim(_lyricWidget.curLine, ignoreCur: false);
+                  setState(() {
+                    _lyricWidget.isDragging = false;
+                  });
+                }
+              });
+            },
+            child: StreamBuilder<String>(
+                stream: widget.provider.curPositionStream,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    var curTime = double.parse(snapshot.data.substring(0, snapshot.data.indexOf('-')));
+                    // 当前哪一行歌词
+                    int curLine  = Utils.findLyricIndex(curTime, _lyrics);
+                    if (!_lyricWidget.isDragging) {
+                      changeLineAnim(curLine);
+                    }
+                    _lyricWidget.curLine = curLine;
+                    return CustomPaint(
+                        size: Size.fromHeight(_paintHeight),
+                        painter: _lyricWidget
+                    );
+                  }
+                  return Container();
+                }
+            )
+        )
+      )
+    );
+  }
+
+  /// 构建操作栏
+  Widget _buildToolBar() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          GestureDetector(
+            onTap: () {},
+            child: Image.asset('images/icon_music_dynamic.png', height: 24,),
+          ),
+          GestureDetector(
+            onTap: () {},
+            child: Image.asset('images/icon_play_more.png', height: 38,),
+          ),
+        ],
+      )
+    );
   }
 }

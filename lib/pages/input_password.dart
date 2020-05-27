@@ -110,8 +110,6 @@ class _InputPhonePageState extends State<InputPasswordPage> {
       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) {
         return MainPage();
       }), (Route<dynamic> route) => false);
-    }).catchError((e) {
-      print(e.message);
     }).whenComplete(() {
       setState(() {
         _submitLoading = false;

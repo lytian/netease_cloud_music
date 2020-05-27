@@ -102,7 +102,15 @@ class _PlaySongPageState extends State<PlaySongPage> with TickerProviderStateMix
                           index: musicIndex,
                           children: <Widget>[
                             _buildMusicBox(curSong),
-                            LyricPage(provider),
+                            LyricPage(provider, onTap: () {
+                              setState(() {
+                                if(musicIndex == 0){
+                                  musicIndex = 1;
+                                }else{
+                                  musicIndex = 0;
+                                }
+                              });
+                            },),
                           ],
                         ),
                       ),
@@ -203,6 +211,7 @@ class _PlaySongPageState extends State<PlaySongPage> with TickerProviderStateMix
           child: Container(
 //            width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 32),
+            margin: EdgeInsets.only(bottom: 8),
             child: Row(
               children: <Widget>[
                 Expanded(
@@ -245,7 +254,7 @@ class _PlaySongPageState extends State<PlaySongPage> with TickerProviderStateMix
   /// 构建进度条
   Widget _buildPlayProgress(PlaySongsProvider provider) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: StreamBuilder<String>(
         stream: provider.curPositionStream,
         builder: (context, snapshot) {
@@ -309,7 +318,7 @@ class _PlaySongPageState extends State<PlaySongPage> with TickerProviderStateMix
     return Container(
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.symmetric(horizontal: 32),
-      height: 60 + Application.bottomBarHeight,
+      height: 68 + Application.bottomBarHeight,
       alignment: Alignment.topCenter,
       child: Row(
         children: <Widget>[
@@ -332,7 +341,7 @@ class _PlaySongPageState extends State<PlaySongPage> with TickerProviderStateMix
               onTap: () {
                 provider.togglePlay();
               },
-              child: Image.asset(provider.curState == AudioPlayerState.PLAYING ?  'images/icon_play_pause.png' : 'images/icon_play_play.png', height: 60,),
+              child: Image.asset(provider.curState == AudioPlayerState.PLAYING ?  'images/icon_play_pause.png' : 'images/icon_play_play.png', height: 68,),
             )
           ),
           Expanded(

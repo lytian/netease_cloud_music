@@ -32,7 +32,7 @@ class LyricWidget extends CustomPainter with ChangeNotifier {
     lyricPaints.forEach((lp) => lp.layout());
     // 延迟一下计算总高度
     Future.delayed(Duration(milliseconds: 300), () {
-      totalHeight = lyricPaints[0].height + LINE_SPACE * (lyricPaints.length - 1);
+      totalHeight = (lyricPaints[0].height + LINE_SPACE) * (lyricPaints.length - 1);
     });
   }
 
