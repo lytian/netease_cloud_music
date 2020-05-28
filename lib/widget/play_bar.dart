@@ -4,6 +4,7 @@ import 'package:netease_cloud_music/application.dart';
 import 'package:netease_cloud_music/models/song.dart';
 import 'package:netease_cloud_music/pages/discover/play_song_page.dart';
 import 'package:netease_cloud_music/provider/play_songs_provider.dart';
+import 'package:netease_cloud_music/widget/bottom_sheet_play_list.dart';
 import 'package:netease_cloud_music/widget/cache_network_image.dart';
 import 'package:provider/provider.dart';
 
@@ -69,7 +70,9 @@ class PlayBar extends StatelessWidget {
                   ),
                   _PlayButton(
                     assetPath: 'images/list.png',
-                    onTap: () {},
+                    onTap: () {
+                      showBottomSheetPlayList(context);
+                    },
                   ),
                 ],
               ),

@@ -57,6 +57,12 @@ class PlaySongsProvider with ChangeNotifier {
     play();
   }
 
+  /// 播放一首歌
+  void playIndex(int index) {
+    curIndex = index;
+    play();
+  }
+
   /// 播放很多歌
   void playSongs(List<Song> songs, {int index}) {
     this._songs = songs;
@@ -67,6 +73,19 @@ class PlaySongsProvider with ChangeNotifier {
   /// 添加歌曲
   void addSongs(List<Song> songs) {
     this._songs.addAll(songs);
+    notifyListeners();
+  }
+
+  /// 移除歌单
+  void removeSong(int index) {
+    this._songs.removeAt(index);
+    if (index == curIndex) {
+      if(curIndex >= _songs.length){
+        curIndex = 0;
+      }
+      play();
+    }
+    notifyListeners();
   }
 
   /// 播放
@@ -144,5 +163,15 @@ class PlaySongsProvider with ChangeNotifier {
     _audioPlayer.dispose();
     super.dispose();
   }
+}
 
+enum PlayMode {
+  /// 列表循环
+  sequence,
+  /// 随机播放
+  random,
+  /// 单曲播放
+  single,
+  /// 心动模式
+  heartbeat,
 }

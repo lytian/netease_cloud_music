@@ -7,6 +7,7 @@ import 'package:netease_cloud_music/application.dart';
 import 'package:netease_cloud_music/models/song.dart';
 import 'package:netease_cloud_music/pages/discover/lyric_page.dart';
 import 'package:netease_cloud_music/provider/play_songs_provider.dart';
+import 'package:netease_cloud_music/widget/bottom_sheet_play_list.dart';
 import 'package:provider/provider.dart';
 import 'package:date_format/date_format.dart';
 
@@ -253,6 +254,7 @@ class _PlaySongPageState extends State<PlaySongPage> with TickerProviderStateMix
   }
   /// 构建进度条
   Widget _buildPlayProgress(PlaySongsProvider provider) {
+    
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: StreamBuilder<String>(
@@ -355,7 +357,7 @@ class _PlaySongPageState extends State<PlaySongPage> with TickerProviderStateMix
           Expanded(
             child: GestureDetector(
               onTap: () {
-
+                showBottomSheetPlayList(context);
               },
               child: Image.asset('images/icon_play_list.png', height: 40,),
             )
