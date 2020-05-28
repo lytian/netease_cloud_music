@@ -24,3 +24,14 @@ class Song {
     return 'Song{id: $id, name: $name, artists: $artists}';
   }
 }
+
+enum PlayMode {
+  /// 列表循环
+  sequence,
+  /// 随机播放
+  random,
+  /// 单曲播放
+  single,
+  /// 心动模式
+  intelligence,
+}

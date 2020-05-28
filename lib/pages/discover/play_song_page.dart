@@ -317,6 +317,22 @@ class _PlaySongPageState extends State<PlaySongPage> with TickerProviderStateMix
   }
   /// 构建音乐播放按钮组
   Widget _buildMusicBtnGroup(PlaySongsProvider provider) {
+    String modeImage = 'images/icon_play_loop.png';
+    switch (provider.playMode) {
+      case PlayMode.sequence:
+        modeImage = 'images/icon_play_loop.png';
+        break;
+      case PlayMode.random:
+        modeImage = 'images/icon_play_random.png';
+        break;
+      case PlayMode.single:
+        modeImage = 'images/icon_play_single.png';
+        break;
+      case PlayMode.intelligence:
+        modeImage = 'images/icon_play_heartbeat.png';
+        break;
+    }
+
     return Container(
       margin: EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.symmetric(horizontal: 32),
@@ -326,8 +342,10 @@ class _PlaySongPageState extends State<PlaySongPage> with TickerProviderStateMix
         children: <Widget>[
           Expanded(
             child: GestureDetector(
-              onTap: () {},
-              child: Image.asset('images/icon_play_loop.png', height: 40,),
+              onTap: () {
+                provider.changePlayMode();
+              },
+              child: Image.asset(modeImage, height: 40,),
             )
           ),
           Expanded(

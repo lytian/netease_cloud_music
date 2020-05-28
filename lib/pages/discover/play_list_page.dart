@@ -20,8 +20,9 @@ import 'package:provider/provider.dart';
 class PlayListPage extends StatefulWidget {
   // 歌单ID
   final int id;
+  final bool recommend; // 是否推荐。 推荐歌单，将使用智能模式播放
 
-  PlayListPage(this.id);
+  PlayListPage(this.id, { this.recommend = false });
 
   @override
   _PlayListPageState createState() => _PlayListPageState();
@@ -197,7 +198,7 @@ class _PlayListPageState extends State<PlayListPage> {
       ],
       bottom: _detail != null ? MusicListHeader(
         onTap: () {
-          _playSongs(0);
+          _playSongs(all: true);
         },
         count: _detail.trackIds.length,
         tail: _detail.subscribed
@@ -510,7 +511,7 @@ class _PlayListPageState extends State<PlayListPage> {
           }));
           return;
         }
-        _playSongs(index);
+        _playSongs(index: index);
       },
       child: Row(
         children: <Widget>[
@@ -621,7 +622,7 @@ class _PlayListPageState extends State<PlayListPage> {
   }
 
   /// 播放音乐
-  void _playSongs(int index) {
+  void _playSongs({int index, bool all = false }) {
     if (_detail == null) return;
 
     // 播放音乐
@@ -632,7 +633,13 @@ class _PlayListPageState extends State<PlayListPage> {
         picUrl: track.al['picUrl']
     )).toList();
 
-    Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: index);
+    if (all) {
+      Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: 0);
+    } else if (widget.recommend) {
+      Provider.of<PlaySongsProvider>(context, listen: false).playSong(songs[index], pid: widget.id);
+    } else {
+      Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: index);
+    }
   }
   /// 切换收藏歌单
   void _toggleSubscribe() {

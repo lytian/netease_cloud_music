@@ -12,6 +12,9 @@ class PlaySongsProvider with ChangeNotifier {
   StreamController<String> _curPositionController = StreamController<String>.broadcast();
 
   List<Song> _songs = [];
+  List<Song> _songsBAK = []; // 歌曲备份
+  PlayMode playMode = PlayMode.sequence; // 播放模式
+  bool isIntelligence = false; // 智能模式
   int curIndex = 0;
   Duration curSongDuration;
   AudioPlayerState _curState;
@@ -51,8 +54,19 @@ class PlaySongsProvider with ChangeNotifier {
     _curPositionController.sink.add('$m-${curSongDuration.inMilliseconds}');
   }
 
-  /// 播放一首歌
-  void playSong(Song song) {
+  /// 播放一首歌。 传入歌单ID，则表示智能播放
+  void playSong(Song song, { int pid }) async {
+    if (pid != null) {
+      // TODO 智能模式，获取心动列表
+      isIntelligence = true;
+      playMode = PlayMode.intelligence;
+
+      _songs = await getPlayListByIntelligence(song.id, pid);
+      if (_songs.isEmpty) return;
+      curIndex = 0;
+    } else {
+      isIntelligence = false;
+    }
     _songs.insert(curIndex, song);
     play();
   }
@@ -65,8 +79,20 @@ class PlaySongsProvider with ChangeNotifier {
 
   /// 播放很多歌
   void playSongs(List<Song> songs, {int index}) {
-    this._songs = songs;
-    if (index != null) curIndex = index;
+    isIntelligence = false;
+    if (playMode == PlayMode.random) {
+      // 打乱顺序
+      _songsBAK = songs;
+      _songs = songs;
+      _songs.shuffle();
+      // 查找新的index
+      if (index != null) {
+        this.curIndex = _songs.indexWhere((song) => song.id == songs[index].id);
+      }
+    } else {
+      this._songs = songs;
+      if (index != null) curIndex = index;
+    }
     play();
   }
 
@@ -85,6 +111,35 @@ class PlaySongsProvider with ChangeNotifier {
       }
       play();
     }
+    notifyListeners();
+  }
+
+  /// 切换播放模式
+  void changePlayMode() {
+    // 随机模式切换之前
+    if (playMode == PlayMode.random) {
+      // 先还原
+      _songs = List.from(_songsBAK);
+      // 查找新的index
+      this.curIndex = _songs.indexWhere((song) => song.id == _songsBAK[curIndex].id);
+    }
+    // 切换操作
+    int modeIndex = playMode.index + 1;
+    if(modeIndex >= (isIntelligence ? PlayMode.values.length : (PlayMode.values.length - 1))) {
+      playMode = PlayMode.values[0];
+    } else{
+      playMode = PlayMode.values[modeIndex];
+    }
+
+    // 切换到随机播放后
+    if (playMode == PlayMode.random) {
+      // 打乱顺序
+      _songsBAK = List.from(_songs);
+      _songs.shuffle();
+      // 查找新的index
+      this.curIndex = _songs.indexWhere((song) => song.id == _songsBAK[curIndex].id);
+    }
+
     notifyListeners();
   }
 
@@ -123,6 +178,11 @@ class PlaySongsProvider with ChangeNotifier {
 
   /// 下一首
   void nextPlay(){
+    if (playMode == PlayMode.single) {
+      // 单曲循环
+      play();
+      return;
+    }
     if(curIndex >= _songs.length){
       curIndex = 0;
     }else{
@@ -133,6 +193,11 @@ class PlaySongsProvider with ChangeNotifier {
 
   /// 上一首
   void prePlay(){
+    if (playMode == PlayMode.single) {
+      // 单曲循环
+      play();
+      return;
+    }
     if(curIndex <= 0){
       curIndex = _songs.length - 1;
     }else{
@@ -150,6 +215,18 @@ class PlaySongsProvider with ChangeNotifier {
     return "";
   }
 
+  Future getPlayListByIntelligence(int songId, int pid) async {
+    List<Song> list = [];
+    try {
+      var data = await DioUtils.get('/playmode/intelligence/list', queryParameters: {'id': songId, 'pid': pid});
+      (data['data'] as List).cast().forEach((e) {
+        String ar = (e['songInfo']['ar'] as List).map((a) => a['name']).join('、');
+        list.add(Song(e['id'], name: e['songInfo']['name'], picUrl: e['songInfo']['al']['picUrl'], artists: ar));
+      });
+    } catch(e) {}
+    return list;
+  }
+
   // 保存当前歌曲到本地
   void saveCurSong(){
     Application.sp.remove('playing_songs');
@@ -163,15 +240,4 @@ class PlaySongsProvider with ChangeNotifier {
     _audioPlayer.dispose();
     super.dispose();
   }
-}
-
-enum PlayMode {
-  /// 列表循环
-  sequence,
-  /// 随机播放
-  random,
-  /// 单曲播放
-  single,
-  /// 心动模式
-  heartbeat,
 }

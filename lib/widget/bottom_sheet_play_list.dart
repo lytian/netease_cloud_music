@@ -132,6 +132,26 @@ class _BottomSheetPlayListState extends State<BottomSheetPlayList> {
         title = '历史播放';
         break;
     }
+    String modeImage = 'images/icon_play_loop.png';
+    String modeText = '循环播放';
+    switch (Provider.of<PlaySongsProvider>(context, listen: false).playMode) {
+      case PlayMode.sequence:
+        modeImage = 'images/icon_play_loop.png';
+        modeText = '列表循环';
+        break;
+      case PlayMode.random:
+        modeImage = 'images/icon_play_random.png';
+        modeText = '随机播放';
+        break;
+      case PlayMode.single:
+        modeImage = 'images/icon_play_single.png';
+        modeText = '单曲循环';
+        break;
+      case PlayMode.intelligence:
+        modeImage = 'images/icon_play_heartbeat.png';
+        modeText = '心动模式';
+        break;
+    }
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 3),
       decoration: BoxDecoration(
@@ -140,6 +160,7 @@ class _BottomSheetPlayListState extends State<BottomSheetPlayList> {
       ),
       child: CustomScrollView(
         slivers: <Widget>[
+          // 头部
           SliverPersistentHeader(
             pinned: true,
             delegate: _BottomSheetHeaderDelegate(
@@ -168,13 +189,25 @@ class _BottomSheetPlayListState extends State<BottomSheetPlayList> {
                     ),
                     /// 播放类型切换
                     type == _PlayListType.current
-                        ? Container()
+                        ? GestureDetector(
+                            onTap: () {
+                              Provider.of<PlaySongsProvider>(context, listen: false).changePlayMode();
+                            },
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Image.asset(modeImage, height: 20, color: Colors.grey, colorBlendMode: BlendMode.color),
+                                Text(modeText, style: TextStyle(fontSize: 12, color: Colors.black87),)
+                              ],
+                            ),
+                          )
                         : Text(source, style: TextStyle(color: Colors.grey, fontSize: 14),)
                   ],
                 ),
               ),
             ),
           ),
+          // 列表
           SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
               Song song = playList[index];
