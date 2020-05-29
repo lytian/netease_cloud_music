@@ -117,11 +117,11 @@ class PlaySongsProvider with ChangeNotifier {
   /// 切换播放模式
   void changePlayMode() {
     // 随机模式切换之前
-    if (playMode == PlayMode.random) {
+    if (playMode == PlayMode.random && _songsBAK.isNotEmpty) {
+      // 查找新的index
+      this.curIndex = _songsBAK.indexWhere((song) => song.id == _songs[curIndex].id);
       // 先还原
       _songs = List.from(_songsBAK);
-      // 查找新的index
-      this.curIndex = _songs.indexWhere((song) => song.id == _songsBAK[curIndex].id);
     }
     // 切换操作
     int modeIndex = playMode.index + 1;
@@ -145,6 +145,8 @@ class PlaySongsProvider with ChangeNotifier {
 
   /// 播放
   void play() async {
+    if (allSongs.isEmpty) return;
+
     var songId = this._songs[curIndex].id;
     var url = await getMusicURL(songId);
     _audioPlayer.play(url);

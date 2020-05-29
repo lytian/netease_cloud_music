@@ -8,6 +8,7 @@ import 'package:netease_cloud_music/models/play_list_detail.dart';
 import 'package:netease_cloud_music/models/song.dart';
 import 'package:netease_cloud_music/pages/discover/play_song_page.dart';
 import 'package:netease_cloud_music/provider/play_songs_provider.dart';
+import 'package:netease_cloud_music/provider/profile_provider.dart';
 import 'package:netease_cloud_music/utils/dio_utils.dart';
 import 'package:netease_cloud_music/utils/number_utils.dart';
 import 'package:netease_cloud_music/widget/custom_future_builder.dart';
@@ -15,14 +16,15 @@ import 'package:netease_cloud_music/widget/flexible_detail_bar.dart';
 import 'package:netease_cloud_music/widget/music_list_header.dart';
 import 'package:netease_cloud_music/widget/play_bar.dart';
 import 'package:provider/provider.dart';
+import 'dart:math' as math;
 
 /// 歌单列表页面
 class PlayListPage extends StatefulWidget {
   // 歌单ID
   final int id;
-  final bool recommend; // 是否推荐。 推荐歌单，将使用智能模式播放
+  final bool liked; // 是否喜欢的歌单，将使用智能模式播放
 
-  PlayListPage(this.id, { this.recommend = false });
+  PlayListPage(this.id, { this.liked = false });
 
   @override
   _PlayListPageState createState() => _PlayListPageState();
@@ -32,34 +34,52 @@ class _PlayListPageState extends State<PlayListPage> {
 
   String _title = '歌单';
   PlayListDetail _detail;
-  ScrollController _controller;
+  ScrollController _scrollController;
+  int pageNum = 1;
+  bool noMore = false;
 
   Future _getPlayListDetail() async {
     var data = await DioUtils.get('/playlist/detail', queryParameters: {
       'id': widget.id
     });
-    print(widget.id);
+    PlayListDetail detail = PlayListDetail.fromJson(data['playlist']);
+    // 歌单接口，最多只返回20首歌曲。重新根据歌曲id列表获取数据
+    // 最多去获取200条数据
+    if (detail.trackCount >= 20) {
+      List<TrackId> ids = detail.trackIds.sublist(0, math.min(200, detail.trackCount - 1));
+      var playlistData = await DioUtils.get('/song/detail', queryParameters: {
+        'ids': ids.map((e) => e.id).join(',')
+      });
+      data['playlist']['tracks'] = playlistData['songs'];
+      detail.tracks = (playlistData['songs'] as List).map((e) => Track.fromJson(e)).toList();
+    }
+    if (widget.liked) {
+      String username = Provider.of<ProfileProvider>(context, listen: false).profile.nickname;
+
+      detail.name = detail.name.replaceAll(username, '我').trim();
+      print(username + ' : ' + detail.name);
+    }
+
     setState(() {
-      _detail = PlayListDetail.fromJson(data['playlist']);
+      _detail = detail;
       if (_detail.specialType == 100) {
         _title = '官方动态歌单';
       }
     });
     return data['playlist'];
   }
-
+  
   @override
   void initState() {
     super.initState();
-
-    _controller = ScrollController()..addListener(() {
+    _scrollController = ScrollController()..addListener(() {
       if (_detail == null || _detail.specialType == 100) return;
 
-      if (_controller.offset < 45 && _title != '歌单') {
+      if (_scrollController.offset < 45 && _title != '歌单') {
         setState(() {
           _title = '歌单';
         });
-      } else if(_controller.offset >= 60 && _title != _detail.name) {
+      } else if(_scrollController.offset >= 60 && _title != _detail.name) {
         setState(() {
           _title = _detail.name;
         });
@@ -75,7 +95,7 @@ class _PlayListPageState extends State<PlayListPage> {
         children: <Widget>[
           Expanded(
             child: CustomScrollView(
-              controller: _controller,
+              controller: _scrollController,
               slivers: <Widget>[
                 _buildSliverAppBar(),
                 SliverToBoxAdapter(
@@ -85,7 +105,6 @@ class _PlayListPageState extends State<PlayListPage> {
                       PlayListDetail detail = PlayListDetail.fromJson(data);
                       return Consumer<PlaySongsProvider>(
                         builder: (context, model, child) {
-
                           return MediaQuery.removePadding(
                             removeTop: true,
                             context: context,
@@ -170,6 +189,8 @@ class _PlayListPageState extends State<PlayListPage> {
       );
     }
 
+    int userId = Provider.of<ProfileProvider>(context, listen: false).profile.userId;
+
     return SliverAppBar(
       expandedHeight: 320,
       pinned: true,
@@ -201,37 +222,39 @@ class _PlayListPageState extends State<PlayListPage> {
           _playSongs(all: true);
         },
         count: _detail.trackIds.length,
-        tail: _detail.subscribed
-          ? InkWell(
-            onTap: () {
-              _toggleSubscribe();
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-              decoration: BoxDecoration(
-                  color: Colors.redAccent,
-                  borderRadius: BorderRadius.circular(48)
-              ),
+        tail: _detail.creator.userId != userId
+          ?_detail.subscribed
+            ? InkWell(
+              onTap: () {
+                _toggleSubscribe();
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                decoration: BoxDecoration(
+                    color: Colors.redAccent,
+                    borderRadius: BorderRadius.circular(48)
+                ),
+                child:Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Icon(Icons.add, size: 16, color: Colors.white,),
+                    Text(' 收藏(${NumberUtils.amountConversion(_detail.subscribedCount)})',style: TextStyle(color: Colors.white, fontSize: 12),)
+                  ],
+                ),
+            )
+          )
+            : InkWell(
+              onTap: () {
+                _toggleSubscribe();
+              },
               child: Row(
-                mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Icon(Icons.add, size: 16, color: Colors.white,),
-                  Text(' 收藏(${NumberUtils.amountConversion(_detail.subscribedCount)})',style: TextStyle(color: Colors.white, fontSize: 12),)
+                  Image.asset('images/icon_collected.png', height: 18,),
+                  Text(' ${NumberUtils.amountConversion(_detail.subscribedCount)}', style: TextStyle(color: Colors.grey, fontSize: 12),)
                 ],
               ),
             )
-          )
-          : InkWell(
-            onTap: () {
-              _toggleSubscribe();
-            },
-            child: Row(
-              children: <Widget>[
-                Image.asset('images/icon_collected.png', height: 18,),
-                Text(' ${NumberUtils.amountConversion(_detail.subscribedCount)}', style: TextStyle(color: Colors.grey, fontSize: 12),)
-              ],
-            ),
-          ),
+          : null
       ) : null,
       flexibleSpace: FlexibleDetailBar(
         titleBackground: backgroundWidget,
@@ -292,7 +315,7 @@ class _PlayListPageState extends State<PlayListPage> {
               height: 120,
               child: Column(
                 mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(_detail == null ? '' : _detail.name,
                     style: TextStyle(
@@ -333,7 +356,7 @@ class _PlayListPageState extends State<PlayListPage> {
                     children: <Widget>[
                       Expanded(
                         flex: 1,
-                        child: Text(_detail == null ? '' : _detail.description,
+                        child: Text(_detail == null ? '' : (_detail.description ?? ''),
                           style: TextStyle(
                             color: Colors.white60,
                             fontSize: 12,
@@ -635,7 +658,7 @@ class _PlayListPageState extends State<PlayListPage> {
 
     if (all) {
       Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: 0);
-    } else if (widget.recommend) {
+    } else if (widget.liked) {
       Provider.of<PlaySongsProvider>(context, listen: false).playSong(songs[index], pid: widget.id);
     } else {
       Provider.of<PlaySongsProvider>(context, listen: false).playSongs(songs, index: index);

@@ -50,6 +50,7 @@ class _PlaySongPageState extends State<PlaySongPage> with TickerProviderStateMix
   Widget build(BuildContext context) {
     return Consumer<PlaySongsProvider>(builder: (context, provider, child) {
       Song curSong = provider.curSong;
+      print(curSong.id);
       if (provider.curState == AudioPlayerState.PLAYING) {
         // 如果当前状态是在播放当中，则唱片一直旋转，
         // 并且唱针是移除状态

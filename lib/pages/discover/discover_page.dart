@@ -64,7 +64,9 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
     return data['banners'];
   }
   Future _getRecommendPlayList() async {
-    var data = await DioUtils.get('/personalized');
+    var data = await DioUtils.get('/personalized', queryParameters: {
+      'limit': 6
+    });
     return data['result'];
   }
   Future _getRecommendSongs() async {
