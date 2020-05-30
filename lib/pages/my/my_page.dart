@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:netease_cloud_music/application.dart';
 import 'package:netease_cloud_music/models/play_list_detail.dart';
 import 'package:netease_cloud_music/models/user.dart';
 import 'package:netease_cloud_music/pages/discover/play_list_page.dart';
+import 'package:netease_cloud_music/provider/play_songs_provider.dart';
 import 'package:netease_cloud_music/provider/profile_provider.dart';
 import 'package:netease_cloud_music/utils/dio_utils.dart';
 import 'package:netease_cloud_music/widget/custom_future_builder.dart';
@@ -22,7 +25,21 @@ class _MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
       'head':  '',
       'title': '我喜欢的音乐',
       'icon': 'images/icon_liked_full.png',
-      'tail': Text('最懂你的推荐', style: TextStyle(fontSize: 12, color: Colors.grey),),
+      'tail': Container(
+        height: 24,
+        padding: EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: Color.fromRGBO(210, 210, 210, 0.3),
+          borderRadius: BorderRadius.circular(24)
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Icon(Icons.play_arrow, size: 14, color: Colors.white,),
+            Text('心动模式', style: TextStyle(fontSize: 12, color: Colors.white, height: 1),)
+          ],
+        ),
+      ),
       'background': 'images/img_000.jpg'
     },
     {
@@ -223,7 +240,7 @@ class _MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
           if (list.length >= 20) {
             list = list.sublist(8, 14);
           } else {
-            list = list.sublist(0, 6);
+            list = list.sublist(0, min(6, list.length));
           }
           List<_GridItemData> gridData = list.map((e) => _GridItemData(
             title: e['name'],
@@ -241,12 +258,16 @@ class _MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
       ));
     }
 
+    // 添加底部空隙
+    children.add(SizedBox(height: 20,));
+
     return CustomScrollView (
       slivers: <Widget>[
         SliverAppBar(
-          expandedHeight: 250,
+          expandedHeight: 200,
           pinned: true,
           elevation: 0,
+          leading: Container(),
           bottom: MusicListHeader(
             content: Text(' 我的音乐', style: TextStyle(
               color: Colors.black,
@@ -288,7 +309,7 @@ class _MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
   Widget _buildProfileInfo(User profile) {
     return Container(
       child: Padding(
-        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 48, left: 12, right: 12),
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top, left: 12, right: 12),
         child: Column(
           children: <Widget>[
             Padding(
@@ -498,7 +519,7 @@ class _CommonGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 12),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Wrap(
         spacing: 8,
         runSpacing: 16,
@@ -515,7 +536,7 @@ class _CommonGridView extends StatelessWidget {
               onItemTap(item);
             },
             child: SizedBox(
-              width: (Application.screenWidth - 38) / 2,
+              width: (Application.screenWidth - 46) / 2,
               child: Row(
                 children: <Widget>[
                   Container(

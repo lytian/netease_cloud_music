@@ -3,7 +3,6 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:netease_cloud_music/models/song.dart';
 import 'package:netease_cloud_music/pages/discover/play_list_page.dart';
 import 'package:netease_cloud_music/pages/discover/play_song_page.dart';
-import 'package:netease_cloud_music/pages/main_page.dart';
 import 'package:netease_cloud_music/provider/play_songs_provider.dart';
 import 'package:netease_cloud_music/utils/dio_utils.dart';
 import 'package:netease_cloud_music/utils/number_utils.dart';

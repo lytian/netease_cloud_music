@@ -11,11 +11,14 @@ class TabViewWrapper extends StatelessWidget {
     return Column(
       children: <Widget>[
         SizedBox(
-          height: 48 + MediaQuery.of(context).padding.top,
+          height: MediaQuery.of(context).padding.top,
         ),
         Expanded(
           child: child,
-        )
+        ),
+        SizedBox(
+          height: 20,
+        ),
       ],
     );
   }

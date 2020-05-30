@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:netease_cloud_music/pages/main_left_page.dart';
 import 'package:netease_cloud_music/widget/play_bar.dart';
 import 'package:netease_cloud_music/widget/vtab.dart';
 
@@ -24,10 +24,11 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     _TabItem('云村', EventPage()),
     _TabItem('视频', VideoPage()),
   ];
-  int _tabIndex = 1;
+  int _tabIndex = 0;
   Color _tabColor = Colors.black87;
-  Color _iconColor = Colors.grey;
+  Color _iconColor = Colors.black54;
   double _opacity = 1;
+  GlobalKey<ScaffoldState> _key = GlobalKey();
 
   @override
   void initState() {
@@ -43,8 +44,8 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
       setState(() {
         _tabColor = _tabController.animation.value < 0.6 ? Colors.white : Colors.black87;
         _iconColor = _tabController.animation.value < 1
-            ? Color.lerp(Colors.white70, Colors.grey, _tabController.animation.value)
-            : Colors.grey;
+            ? Color.lerp(Colors.white70, Colors.black54, _tabController.animation.value)
+            : Colors.black54;
         _opacity = _tabController.animation.value < 1 ? _tabController.animation.value : 1;
       });
     });
@@ -53,81 +54,58 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _key,
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white.withOpacity(_opacity),
+        leading: IconButton(
+          onPressed: () {
+            _key.currentState.openDrawer();
+          },
+          icon: Icon(Icons.menu, color: _iconColor),
+        ),
+        centerTitle: true,
+        title: VTabBar(
+          isScrollable: true,
+          controller: _tabController,
+          indicator: BoxDecoration(),
+          labelPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+          unselectedLabelColor: Colors.grey,
+          unselectedLabelStyle: TextStyle(
+              fontWeight: FontWeight.normal,
+              fontSize: 16
+          ),
+          labelColor: _tabColor,
+          labelStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18
+          ),
+          tabs: _tabs.map((item) {
+            return Tab(text: item.title);
+          }).toList(),
+        ),
+        actions: <Widget>[
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.search, color: _iconColor),
+          ),
+        ],
+      ),
+      extendBodyBehindAppBar: true,
       body: Column(
         children: <Widget>[
           Expanded(
-            child: Stack(
-              children: <Widget>[
-                TabBarView(
-                    controller: _tabController,
-                    children: _tabs.map((item) => item.view).toList()
-                ),
-                _buildAppBar(),
-              ],
+            child: TabBarView(
+                controller: _tabController,
+                children: _tabs.map((item) => item.view).toList()
             ),
           ),
           PlayBar()
         ],
-      )
-
-    );
-  }
-
-  Widget _buildAppBar() {
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: PreferredSize(
-        preferredSize: Size.fromHeight(48),
-        child: Container(
-          color: Colors.white.withOpacity(_opacity),
-          child: AnnotatedRegion<SystemUiOverlayStyle>(
-            value: SystemUiOverlayStyle(
-                statusBarColor: Colors.transparent,
-                //有Appbar时，会被覆盖
-                statusBarIconBrightness: Brightness.dark),
-            child: SafeArea(child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                InkWell(
-                    onTap: () {},
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Icon(Icons.menu, color: _iconColor,),
-                    )
-                ),
-                VTabBar(
-                  isScrollable: true,
-                  controller: _tabController,
-                  indicator: BoxDecoration(),
-                  labelPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                  unselectedLabelColor: Colors.grey,
-                  unselectedLabelStyle: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 16
-                  ),
-                  labelColor: _tabColor,
-                  labelStyle: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18
-                  ),
-                  tabs: _tabs.map((item) {
-                    return Tab(text: item.title);
-                  }).toList(),
-                ),
-                InkWell(
-                  onTap: () {},
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Icon(Icons.search, color: _iconColor,),
-                  )
-                ),
-              ],
-            ),
-          )),
-        ),
+      ),
+      drawer: Drawer(
+        child: MainLeftPage(),
       ),
     );
   }
