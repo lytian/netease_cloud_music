@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 typedef ItemWidgetBuilder = Widget Function(
-  BuildContext context,
-  int index,
-);
+    BuildContext context,
+    int index,
+    );
 
 /// 横向分页式表格布局
 class PaginationGridView extends StatefulWidget {
@@ -47,66 +47,42 @@ class _PaginationGridViewState extends State<PaginationGridView> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: widget.height,
-      child: Listener(
-        onPointerDown: (event) {
-          _gridStartPosition = event.position;
-        },
-        onPointerUp: (event) {
-          double distance = _gridStartPosition.dx - event.position.dx;
-          double screenWidth = (widget.height - widget.crossAxisSpacing * (widget.crossAxisCount - 1)) / (widget.crossAxisCount * widget.childAspectRatio) + widget.mainAxisSpacing;
+        height: widget.height,
+        child: Listener(
+          onPointerDown: (event) {
+            _gridStartPosition = event.position;
+          },
+          onPointerUp: (event) {
+            double distance = _gridStartPosition.dx - event.position.dx;
+            double screenWidth = (widget.height - widget.crossAxisSpacing * (widget.crossAxisCount - 1)) / (widget.crossAxisCount * widget.childAspectRatio) + widget.mainAxisSpacing;
 
-          if (distance.abs() < 10) {
-            // 滑动太短，保留当前页
-            _gridController.animateTo(_gridPage * screenWidth, duration: Duration(milliseconds: 200), curve: Curves.linear);
-          } else if (distance > 0) {
-            // 下一页
-            _gridPage++;
-            _gridController.animateTo(_gridPage * screenWidth, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
-          } else if (distance < 0) {
-            // 上一页
-            _gridPage--;
-            _gridController.animateTo(_gridPage * screenWidth, duration: Duration(milliseconds: 200), curve: Curves.easeOut);
-          }
-        },
-        child: GridView.builder(
-          scrollDirection: Axis.horizontal,
-          controller: _gridController,
-          padding: widget.padding,
-          itemCount: widget.itemCount,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: widget.crossAxisCount,
-            crossAxisSpacing: widget.crossAxisSpacing,
-            mainAxisSpacing: widget.mainAxisSpacing,
-            childAspectRatio: widget.childAspectRatio
+            if (distance.abs() < 10) {
+              // 滑动太短，保留当前页
+              _gridController.animateTo(_gridPage * screenWidth, duration: Duration(milliseconds: 200), curve: Curves.linear);
+            } else if (distance > 0) {
+              // 下一页
+              _gridPage++;
+              _gridController.animateTo(_gridPage * screenWidth, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+            } else if (distance < 0) {
+              // 上一页
+              _gridPage--;
+              _gridController.animateTo(_gridPage * screenWidth, duration: Duration(milliseconds: 200), curve: Curves.easeOut);
+            }
+          },
+          child: GridView.builder(
+            scrollDirection: Axis.horizontal,
+            controller: _gridController,
+            padding: widget.padding,
+            itemCount: widget.itemCount,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: widget.crossAxisCount,
+                crossAxisSpacing: widget.crossAxisSpacing,
+                mainAxisSpacing: widget.mainAxisSpacing,
+                childAspectRatio: widget.childAspectRatio
+            ),
+            itemBuilder: (context, index) => widget.builder(context, index),
           ),
-          itemBuilder: (context, index) => widget.builder(context, index),
-        ),
-      )
+        )
     );
   }
 }
-
-class OverScrollBehavior extends ScrollBehavior{
-
-  @override
-  Widget buildViewportChrome(BuildContext context, Widget child, AxisDirection axisDirection) {
-    switch (getPlatform(context)) {
-      case TargetPlatform.iOS:
-        return child;
-      case TargetPlatform.android:
-      case TargetPlatform.fuchsia:
-        return GlowingOverscrollIndicator(
-          child: child,
-          //不显示头部水波纹
-          showLeading: false,
-          //不显示尾部水波纹
-          showTrailing: false,
-          axisDirection: axisDirection,
-          color: Theme.of(context).accentColor,
-        );
-    }
-    return null;
-  }
-}
-

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:netease_cloud_music/application.dart';
 import 'package:netease_cloud_music/models/song.dart';
 import 'package:netease_cloud_music/pages/discover/play_list_page.dart';
 import 'package:netease_cloud_music/pages/discover/play_song_page.dart';
@@ -423,8 +424,8 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
               crossAxisCount: 3,
               crossAxisSpacing: 6,
               mainAxisSpacing: 16,
-              childAspectRatio: 1 / 6.1,
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              childAspectRatio: 56 / (Application.screenWidth - 72),
+              padding: EdgeInsets.only(left: 16, right: 32),
               builder: (context, index) {
                 return InkWell(
                   onTap: () {
@@ -603,8 +604,8 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                   crossAxisCount: 3,
                   crossAxisSpacing: 6,
                   mainAxisSpacing: 16,
-                  childAspectRatio: 1 / 6.1,
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  childAspectRatio: 56 / (Application.screenWidth - 72),
+                  padding: EdgeInsets.only(left: 16, right: 32),
                   builder: (context, index) {
                     return InkWell(
                       onTap: () {
@@ -701,8 +702,8 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
             crossAxisCount: 3,
             crossAxisSpacing: 6,
             mainAxisSpacing: 16,
-            childAspectRatio: 1 / 6.1,
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            childAspectRatio: 56 / (Application.screenWidth - 72),
+            padding: EdgeInsets.only(left: 16, right: 32),
             builder: (context, index) {
               return InkWell(
                 onTap: () {
