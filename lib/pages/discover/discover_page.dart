@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:netease_cloud_music/application.dart';
 import 'package:netease_cloud_music/models/song.dart';
+import 'package:netease_cloud_music/pages/discover/daily_page.dart';
 import 'package:netease_cloud_music/pages/discover/play_list_page.dart';
 import 'package:netease_cloud_music/pages/discover/play_song_page.dart';
 import 'package:netease_cloud_music/provider/play_songs_provider.dart';
@@ -19,36 +20,36 @@ class DiscoverPage extends StatefulWidget {
 }
 
 class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClientMixin {
+
   List _categoryList = [
     {
+      'id': 0,
       'title': '每日推荐',
       'icon': 'images/icon_daily.png',
-      'text': DateTime.now().day.toString(),
-      'onTap': () {}
+      'text': DateTime.now().day.toString()
     },
     {
+      'id': 1,
       'title': '歌单',
       'icon': 'images/icon_playlist.png',
-      'text': '',
-      'onTap': () {}
+      'text': ''
     },
     {
+      'id': 2,
       'title': '排行榜',
       'icon': 'images/icon_rank.png',
-      'text': '',
-      'onTap': () {}
+      'text': ''
     },
     {
+      'id': 3,
       'title': '电台',
       'icon': 'images/icon_radio.png',
-      'text': '',
-      'onTap': () {}
+      'text': ''
     },
     {
       'title': '直播',
       'icon': 'images/icon_look.png',
-      'text': '',
-      'onTap': () {}
+      'text': ''
     }
   ];
   double _categoryWidth = 44;
@@ -279,7 +280,15 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: _categoryList.map((e) {
           return GestureDetector(
-            onTap: e['onTap'],
+            onTap: () {
+              switch(e['id']) {
+                case 0:
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return DailyPage();
+                  }));
+                  break;
+              }
+            },
             child: Column(
               children: <Widget>[
                 Stack(
