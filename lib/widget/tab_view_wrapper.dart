@@ -16,9 +16,6 @@ class TabViewWrapper extends StatelessWidget {
         Expanded(
           child: child,
         ),
-        SizedBox(
-          height: 20,
-        ),
       ],
     );
   }
